@@ -60,7 +60,7 @@ export const ChatApp = () => {
   const refChatBox = useRef(null);
 
   const { decodedToken, isExpired, reEvaluateToken } = useJwt(
-    localStorage.getItem("token")
+    localStorage.getItem("token") || ""
   );
 
   const [searchState, setSearchState] = useState({ value: "" });
@@ -127,15 +127,20 @@ export const ChatApp = () => {
 
   const [otherUser, setOtherUser] = useState(null);
 
-  const [currentToken, setCurrentToken] = useState(localStorage.getItem("token"))
+  const [currentToken, setCurrentToken] = useState(localStorage.getItem("token") || "")
 
 
   useEffect(() => {
     // console.log(localStorage.getItem("token"), isExpired)
     // console.log("decodedToken", decodedToken)
     // reEvaluateToken(localStorage.getItem("token"))
-    let decodedToken = jwt_decode(currentToken);
-    console.log("decodedToken", decodedToken)
+    let decodedToken;
+    if (currentToken) {
+      decodedToken = jwt_decode(currentToken);
+    }
+    // let 
+    // console.log("decodedToken", decodedToken)
+    // console.log("decodedToken", decodedToken)
     // console.log(decodedToken)
     if (decodedToken) {
       setUserState({
