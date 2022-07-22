@@ -43,7 +43,6 @@ export const AppRouter = () => {
 
   const navigate = useNavigate();
 
-
   useEffect(() => {
     console.log("Connecting socket");
     let newSocket = socketIOClient(HOSTNAME, {
@@ -93,21 +92,20 @@ export const AppRouter = () => {
     });
     peer.on("signal", (data) => {
       socket.emit("acceptCall", { signal: data, to: otherUser });
-      console.log("-----------------> signal")
+      console.log("-----------------> signal");
       navigate("/video-call");
     });
 
     peer.on("stream", (stream) => {
       setOtherUser({ ...otherUser, stream });
-      console.log("-----------------> stream")
+      console.log("-----------------> stream");
       // partnerVideo.current.srcObject = stream;
     });
 
     peer.signal(otherUser.signalData);
     setNewCallReceived(false);
-    console.log("-----------------> PEER.SIGNAL")
+    console.log("-----------------> PEER.SIGNAL");
     // console.log("stream", stream, "otro stream", otherUser.stream);
-    
   };
 
   return (
