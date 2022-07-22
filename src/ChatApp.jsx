@@ -15,6 +15,8 @@ import { AppContext, contextStructure } from "./context/AppContext";
 import { FriendsScreen } from "./Components/friends/FriendsScreen";
 
 import { AppRouter } from "./routers/AppRouter";
+import { PrivateRoute } from "./routers/PrivateRoute";
+import jwt_decode from "jwt-decode";
 
 const currentChat = {
   name: "Lucas",
@@ -62,11 +64,7 @@ export const ChatApp = () => {
   );
 
   const [searchState, setSearchState] = useState({ value: "" });
-  const [userState, setUserState] = useState({
-    isConnected: false,
-    id: undefined,
-    username: undefined,
-  });
+  const [userState, setUserState] = useState(null);
 
   const [currentChatState, setCurrentChatState] = useState(currentChat);
 
@@ -129,9 +127,16 @@ export const ChatApp = () => {
 
   const [otherUser, setOtherUser] = useState(null);
 
+  const [currentToken, setCurrentToken] = useState(localStorage.getItem("token"))
+
+
   useEffect(() => {
     // console.log(localStorage.getItem("token"), isExpired)
     // console.log("decodedToken", decodedToken)
+    // reEvaluateToken(localStorage.getItem("token"))
+    let decodedToken = jwt_decode(currentToken);
+    console.log("decodedToken", decodedToken)
+    // console.log(decodedToken)
     if (decodedToken) {
       setUserState({
         isConnected: true,
@@ -143,7 +148,8 @@ export const ChatApp = () => {
       setUserState({});
       console.log("No token");
     }
-  }, [decodedToken]);
+  }, [currentToken]);
+
 
   return (
     <AppContext.Provider
@@ -172,14 +178,21 @@ export const ChatApp = () => {
         stream,
         setStream,
         otherUser,
-        setOtherUser,
+        setOtherUser,currentToken, setCurrentToken
       }}
     >
       {userState && (
         <BrowserRouter>
           <Routes>
             <Route exact path="/login" element={<LoginScreen />} />
-            <Route path="*" element={<AppRouter />} />
+            <Route
+              path="*"
+              element={
+                <PrivateRoute>
+                  <AppRouter />
+                </PrivateRoute>
+              }
+            />
             {/* <Route path="*" element={<Navigate to="/" />} /> */}
           </Routes>
         </BrowserRouter>

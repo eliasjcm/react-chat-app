@@ -61,7 +61,7 @@ import {
         // console.log("Asking for a friend");
         // e.preventDefault();
         // console.log("USERSTATE", decodedToken);
-        const request = await fetch(`${HOSTNAME}/posts/${id}}`, {
+        const request = await fetch(`${HOSTNAME}posts/${id}}`, {
           headers: {
             authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -75,7 +75,7 @@ import {
         // setUsersListState(friendsRes);
         // setScreenState({ ...screenState, inSearch: true });
         // };
-        // const request = await fetch(`${HOSTNAME}/posts/` )
+        // const request = await fetch(`${HOSTNAME}posts/` )
         setUi("loaded");
       })();
     }, []);

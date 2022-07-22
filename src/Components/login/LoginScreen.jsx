@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { HOSTNAME } from "../../utils";
 
 export const LoginScreen = () => {
-  console.log("LoginScreen")
+  console.log("LoginScreen");
   const navigate = useNavigate();
   const {
     loginState,
@@ -16,11 +16,12 @@ export const LoginScreen = () => {
     setAlertMessage,
     setUserState,
     reEvaluateToken,
+    setCurrentToken,
   } = useContext(AppContext);
 
   const handleLogin = async () => {
     setAlertMessage({ severity: "" });
-    const response = await fetch(`${HOSTNAME}/login`, {
+    const response = await fetch(`${HOSTNAME}login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -38,8 +39,15 @@ export const LoginScreen = () => {
         severity: "success",
       });
       // const { decodedToken, isExpired } = useJwt(responseBody.token);
+      // responseBody.token
+      // {
+      //   isConnected: true,
+      //   id: decodedToken.id,
+      //   username: decodedToken.username,
+      // }
       setUserState({ isLogged: true });
-      reEvaluateToken(responseBody.token);
+      // reEvaluateToken(responseBody.token);
+      setCurrentToken(responseBody.token);
       localStorage.setItem("token", responseBody.token);
       navigate("/", { replace: true });
     } else {
