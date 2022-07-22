@@ -1,0 +1,63 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+}
+* {
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.chat-msg + .chat-msg {
+  margin-top: 5px;
+}
+
+.chat-msg {
+  border-radius: 10px;
+}
+
+.chat-msg-received {
+  margin-left: 15px;
+  background-color: wheat;
+}
+.chat-msg-sent {
+  margin-right: 15px;
+  background-color: aquamarine;
+}
+
+#chat-date-msgs {
+  align-self: center;
+  background-color: #d9d9d9;
+  padding: 3px 10px;
+  margin: 25px 0 20px;
+  border-radius: 5px;
+}
+
+.chat-date-msgs .MuiListItemText-primary {
+  font-weight: bold;
+  font-size: 0.8em;
+}
+
+.chat-msg-received + .chat-msg-sent,
+.chat-msg-sent + .chat-msg-received {
+  margin-top: 10px;
+}
+
+.chat-msg .MuiListItemText-secondary {
+  align-self: flex-end;
+  margin-left: 10px;
+  font-size: 0.7em;
+  flex-shrink: 0;
+}
+
+.chat-list .MuiListItemText-secondary {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
+  /* width: 100px; */
+}
