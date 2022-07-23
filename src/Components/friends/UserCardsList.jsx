@@ -17,7 +17,7 @@ export const UserCardsList = ({ usersList }) => {
     >
       {usersList.map((user) => {
         return (
-          <Grid item>
+          <Grid item key={user.id}>
             <Link to={`/profile/${user.id}`} style={{textDecoration: 'none', color: 'initial'}}>
               <UserCard key={user.id} user={user} />
             </Link>

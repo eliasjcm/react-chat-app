@@ -1,5 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import {
   AppBar,
   Avatar,
@@ -36,14 +43,20 @@ export const AppRouter = () => {
     setOtherUser,
     stream,
     setStream,
+    callState,
+    setCallState,
+    setOtherUserStream,
   } = useContext(AppContext);
   const [newCallReceived, setNewCallReceived] = useState(false);
 
-  const [callAccepted, setCallAccepted] = useState(false);
+  const [callClosed, setCallClosed] = useState(false);
 
   const navigate = useNavigate();
 
+  const location = useLocation();
+
   useEffect(() => {
+    // console.log(location.pathname);
     console.log("Connecting socket");
     let newSocket = socketIOClient(HOSTNAME, {
       query: { token: localStorage.getItem("token") },
@@ -57,14 +70,22 @@ export const AppRouter = () => {
     // });
 
     newSocket.on("newCallReceived", async (data) => {
+      setOtherUser(data.from);
+      setNewCallReceived(true);
+
       let stream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true,
       });
       console.log(stream);
       setStream(stream);
-      setNewCallReceived(true);
-      setOtherUser(data.from);
+    });
+
+    newSocket.on("callClosed", () => {
+      console.log("CLOSING CURRENT CALL");
+      navigate("/");
+      setCallState(null);
+      setCallClosed(true);
     });
 
     setSocket(newSocket);
@@ -79,6 +100,7 @@ export const AppRouter = () => {
 
   const handleClose = () => {
     setNewCallReceived(false);
+    setCallClosed(false);
   };
 
   const acceptCall = () => {
@@ -97,7 +119,8 @@ export const AppRouter = () => {
     });
 
     peer.on("stream", (stream) => {
-      setOtherUser({ ...otherUser, stream });
+      setOtherUser({ ...otherUser });
+      setOtherUserStream(stream);
       console.log("-----------------> stream");
       // partnerVideo.current.srcObject = stream;
     });
@@ -145,6 +168,25 @@ export const AppRouter = () => {
                 Chats
               </Typography>
             </Link>
+            {!location.pathname.startsWith("/video-call") && !!callState && (
+              <Link
+                to="/video-call"
+                style={{ marginLeft: "auto", marginRight: "10px" }}
+              >
+                <Box
+                  display={"flex"}
+                  alignItems={"center"}
+                  sx={{
+                    backgroundColor: "primary.dark",
+                    padding: "5px 10px",
+                    borderRadius: "5px",
+                    //   border: "1px solid black",
+                  }}
+                >
+                  <Typography>Call in progress, click to come back.</Typography>
+                </Box>
+              </Link>
+            )}
             <Link
               to="/myProfile"
               style={{ marginLeft: "auto", marginRight: "10px" }}
@@ -224,6 +266,26 @@ export const AppRouter = () => {
             <Button onClick={acceptCall} autoFocus>
               Answer
             </Button>
+          </DialogActions>
+        </Dialog>
+      </Backdrop>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: 5 }}
+        // open={open}
+        open={callClosed}
+        // onClick={handleClose}
+      >
+        <Dialog
+          open={callClosed}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            Call in progress finished
+          </DialogTitle>
+          <DialogActions>
+            <Button onClick={handleClose}>Close</Button>
           </DialogActions>
         </Dialog>
       </Backdrop>

@@ -29,7 +29,7 @@ export const FriendsScreen = () => {
   const handleFindFriends = async (e) => {
     console.log("Asking for a friend");
     e.preventDefault();
-    const request = await fetch(`${HOSTNAME}users?q=${searchState.value}`, {
+    const request = await fetch(`${HOSTNAME}/users?q=${searchState.value}`, {
       headers: {
         authorization: `Bearer ${localStorage.getItem("token")}`,
       },
@@ -48,7 +48,7 @@ export const FriendsScreen = () => {
 
   const askFriends = async () => {
     const request = await fetch(
-      `${HOSTNAME}users?onlyFriends=true`,
+      `${HOSTNAME}/users?onlyFriends=true`,
       {
         headers: {
           authorization: `Bearer ${localStorage.getItem("token")}`,

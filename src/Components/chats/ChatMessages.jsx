@@ -17,8 +17,8 @@ export const ChatMessages = () => {
         width: "100%",
       }}
     >
-      {currentChatState.chatMessages.map((msg) => (
-        <ChatMessage key={msg.id} msg={msg} />
+      {currentChatState.chatMessages.map((msg, idx) => (
+        <ChatMessage key={idx} msg={msg} />
       ))}
     </List>
   );

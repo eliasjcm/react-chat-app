@@ -58,7 +58,7 @@ export const MainScreen = () => {
       // console.log("Asking for a friend");
       // e.preventDefault();
       // console.log("USERSTATE", decodedToken);
-      const request = await fetch(`${HOSTNAME}posts/${userState.id}}`, {
+      const request = await fetch(`${HOSTNAME}/posts/${userState.id}}`, {
         headers: {
           authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -72,7 +72,7 @@ export const MainScreen = () => {
       // setUsersListState(friendsRes);
       // setScreenState({ ...screenState, inSearch: true });
       // };
-      // const request = await fetch(`${HOSTNAME}posts/` )
+      // const request = await fetch(`${HOSTNAME}/posts/` )
       setUi("loaded");
     })();
   }, []);

@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import { ChatsList } from "./ChatsList";
 import { ChatMessages } from "./ChatMessages";
 import { deepOrange } from "@mui/material/colors";
+import { CALL_DEVELOPMENT } from "../../utils";
 
 const ENDPOINT = "http://192.168.100.47:5000";
 
@@ -73,6 +74,7 @@ export const ChatsScreen = () => {
     setStream,
     otherUser,
     setOtherUser,
+    setOtherUserStream,
   } = useContext(AppContext);
 
   // simple-peer
@@ -149,61 +151,65 @@ export const ChatsScreen = () => {
   };
 
   const handleStartCall = async () => {
-    console.log("STARTING CALL ");
-    try {
-      let stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      });
-      console.log(stream);
-      setStream(stream);
-      if (userVideo.current) {
-        userVideo.current.srcObject = stream;
+    if (!CALL_DEVELOPMENT) {
+      console.log("STARTING CALL ");
+      try {
+        setIsCallingActive(true);
+
+        let stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+        console.log(stream);
+        setStream(stream);
+        if (userVideo.current) {
+          userVideo.current.srcObject = stream;
+        }
+
+        const peer = new Peer({
+          initiator: true,
+          trickle: false,
+          stream: stream,
+        });
+
+        peer.on("signal", (data) => {
+          socket.emit("callUser", {
+            chatId: currentChatState.id,
+            signalData: data,
+            from: userState,
+          });
+        });
+
+        peer.on("stream", (partnerStream) => {
+          // if (partnerVideo.current) {
+          //   partnerVideo.current.srcObject = stream;
+          // }
+          console.log("SETTING OTHER USER STREAM", otherUser);
+          setOtherUserStream(partnerStream);
+          console.log("stream", stream, "otro stream", partnerStream);
+          console.log("-----------------> stream");
+          setIsCallingActive(false);
+          navigate("/video-call");
+        });
+
+        socket.on("callAccepted", (signal) => {
+          // setCallAccepted(true);
+          peer.signal(signal);
+          console.log("LLAMADA ACEPTADA");
+          console.log("-----------------> callAccepted");
+        });
+
+        socket.on("callReceiver", (receiver) => {
+          console.log("CALL RECEIVER ->", receiver);
+          setOtherUser(receiver);
+        });
+      } catch (err) {
+        alert(err);
       }
-
-      setIsCallingActive(true);
-
-      const peer = new Peer({
-        initiator: true,
-        trickle: false,
-        stream: stream,
-      });
-
-      peer.on("signal", (data) => {
-        socket.emit("callUser", {
-          chatId: currentChatState.id,
-          signalData: data,
-          from: userState,
-        });
-      });
-
-      peer.on("stream", (partnerStream) => {
-        // if (partnerVideo.current) {
-        //   partnerVideo.current.srcObject = stream;
-        // }
-        setOtherUser({
-          ...otherUser,
-          stream: partnerStream,
-        });
-        console.log("SETTING OTHER USER STREAM");
-        console.log("stream", stream, "otro stream", partnerStream);
-        console.log("-----------------> stream");
-        setIsCallingActive(false);
-        navigate("/video-call");
-      });
-
-      socket.on("callAccepted", (signal) => {
-        // setCallAccepted(true);
-        peer.signal(signal);
-        console.log("LLAMADA ACEPTADA");
-        console.log("-----------------> callAccepted");
-      });
-    } catch (err) {
-      alert(err);
+    } else {
+      // go to /video-call/:chatId
+      navigate(`/video-call`);
     }
-
-    // go to /video-call/:chatId
-    // navigate(`/video-call/`);
   };
 
   return (
@@ -299,6 +305,7 @@ export const ChatsScreen = () => {
           </Box>
         </Grid>
       </Grid>
+      {/* BACKDROP FOR MESSAGE: */}
       <Backdrop
         sx={{ color: "#fff", zIndex: 5 }}
         // open={open}

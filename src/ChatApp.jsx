@@ -124,11 +124,13 @@ export const ChatApp = () => {
   const [socket, setSocket] = useState(undefined);
 
   const [stream, setStream] = useState();
+  const [otherUserStream, setOtherUserStream] = useState();
 
   const [otherUser, setOtherUser] = useState(null);
 
-  const [currentToken, setCurrentToken] = useState(localStorage.getItem("token") || "")
-
+  const [currentToken, setCurrentToken] = useState(
+    localStorage.getItem("token") || ""
+  );
 
   useEffect(() => {
     // console.log(localStorage.getItem("token"), isExpired)
@@ -138,7 +140,7 @@ export const ChatApp = () => {
     if (currentToken) {
       decodedToken = jwt_decode(currentToken);
     }
-    // let 
+    // let
     // console.log("decodedToken", decodedToken)
     // console.log("decodedToken", decodedToken)
     // console.log(decodedToken)
@@ -155,6 +157,7 @@ export const ChatApp = () => {
     }
   }, [currentToken]);
 
+  const [callState, setCallState] = useState(null);
 
   return (
     <AppContext.Provider
@@ -183,7 +186,13 @@ export const ChatApp = () => {
         stream,
         setStream,
         otherUser,
-        setOtherUser,currentToken, setCurrentToken
+        setOtherUser,
+        currentToken,
+        setCurrentToken,
+        callState,
+        setCallState,
+        otherUserStream,
+        setOtherUserStream,
       }}
     >
       {userState && (

@@ -21,7 +21,7 @@ export const LoginScreen = () => {
 
   const handleLogin = async () => {
     setAlertMessage({ severity: "" });
-    const response = await fetch(`${HOSTNAME}login`, {
+    const response = await fetch(`${HOSTNAME}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
