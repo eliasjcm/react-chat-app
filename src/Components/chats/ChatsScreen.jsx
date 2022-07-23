@@ -91,6 +91,11 @@ export const ChatsScreen = () => {
 
   const handleCloseNotAnswered = () => {
     setIsCallingActive(false);
+    if (callStatus === "DECLINED") {
+      if (timeoutID) {
+        clearTimeout(timeoutID);
+      }
+    }
     setCallStatus("NONE");
   };
 
@@ -248,6 +253,25 @@ export const ChatsScreen = () => {
           console.log("CALL RECEIVER ->", receiver);
           setOtherUser(receiver);
         });
+
+        socket.on("callDeclined", () => {
+          console.log("LLAMADA RECHAZADA");
+          setIsCallingActive(false);
+          setCallStatus("DECLINED");
+          setStream(null);
+          setOtherUserStream(null);
+          // navigate("/chats");
+
+          // setCallStatus("FAILED");
+          //     setIsCallingActive(false);
+          //     try {
+          //       closeCallStream(stream);
+          //     } catch (err) {
+          //       console.log(err);
+          //     }
+          //     setStream(null);
+          //     setOtherUserStream(null);
+        });
       } catch (err) {
         alert(err);
       }
@@ -354,7 +378,11 @@ export const ChatsScreen = () => {
       <Backdrop
         sx={{ color: "#fff", zIndex: 5 }}
         // open={open}
-        open={isCallingActive || callStatus === "FAILED"}
+        open={
+          isCallingActive ||
+          callStatus === "FAILED" ||
+          callStatus === "DECLINED"
+        }
         // onClick={handleClose}
       >
         {isCallingActive && (
@@ -375,13 +403,15 @@ export const ChatsScreen = () => {
           </Grid>
         )}
         <Dialog
-          open={callStatus === "FAILED"}
+          open={callStatus === "FAILED" || callStatus === "DECLINED"}
           onClose={handleCloseNotAnswered}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            User cannot be contacted. Call finished.
+            {callStatus === "FAILED"
+              ? "User cannot be contacted. Call finished."
+              : "User declined the call."}
           </DialogTitle>
           <DialogActions>
             <Button onClick={handleCloseNotAnswered}>Close</Button>

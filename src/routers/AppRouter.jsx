@@ -112,6 +112,12 @@ export const AppRouter = () => {
     setCallClosed(false);
   };
 
+  const handleDeclineCall = () => {
+    setNewCallReceived(false);
+    setCallClosed(false);
+    socket.emit("declineCall", { to: otherUser, from: userState });
+  };
+
   const acceptCall = () => {
     console.log("ACCEPT CALL IN APPROUTER");
     // setCallAccepted(true);
@@ -271,7 +277,7 @@ export const AppRouter = () => {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>Decline</Button>
+            <Button onClick={handleDeclineCall}>Decline</Button>
             <Button onClick={acceptCall} autoFocus>
               Answer
             </Button>
