@@ -33,6 +33,7 @@ import { Profile } from "../Components/users/Profile";
 import { VideoCall } from "../Components/calls/VideoCall";
 import socketIOClient from "socket.io-client";
 import { HOSTNAME } from "../utils";
+import { closeCallStream } from "../helpers/calls";
 
 export const AppRouter = () => {
   const {
@@ -85,7 +86,15 @@ export const AppRouter = () => {
       console.log("CLOSING CURRENT CALL");
       navigate("/");
       setCallState(null);
+      try {
+        closeCallStream(stream);
+      } catch (err) {
+        console.log(err);
+      }
+      console.log("NULLING CALL STATE")
       setCallClosed(true);
+      setOtherUserStream(null);
+      setStream(null);
     });
 
     setSocket(newSocket);

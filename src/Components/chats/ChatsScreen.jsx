@@ -13,6 +13,9 @@ import {
   Backdrop,
   CircularProgress,
   Typography,
+  Dialog,
+  DialogTitle,
+  DialogActions,
 } from "@mui/material";
 import Peer from "simple-peer";
 
@@ -26,6 +29,7 @@ import { ChatsList } from "./ChatsList";
 import { ChatMessages } from "./ChatMessages";
 import { deepOrange } from "@mui/material/colors";
 import { CALL_DEVELOPMENT } from "../../utils";
+import { closeCallStream } from "../../helpers/calls";
 
 const ENDPOINT = "http://192.168.100.47:5000";
 
@@ -84,6 +88,19 @@ export const ChatsScreen = () => {
   const navigate = useNavigate();
 
   const [isCallingActive, setIsCallingActive] = useState(false);
+
+  const handleCloseNotAnswered = () => {
+    setIsCallingActive(false);
+    setCallStatus("NONE");
+  };
+
+  // NONE, FAILED
+  const [callStatus, setCallStatus] = useState("NONE");
+
+  const [timeoutID, setTimeoutID] = useState(null);
+
+  // const [callStatus, setCallStatus] = useState("declin");
+
   /////////////////////////////
 
   useEffect(() => {
@@ -102,7 +119,7 @@ export const ChatsScreen = () => {
         /////
         let newMessagesList = addDateToList(chatInfo.chatMessages);
         /////
-        console.log("newMessagesList", newMessagesList);
+        // console.log("newMessagesList", newMessagesList);
         setCurrentChatState({
           ...chatInfo,
           newMessage: "",
@@ -131,6 +148,15 @@ export const ChatsScreen = () => {
   }, [socket]);
 
   useEffect(() => {
+    return () => {
+      console.log("UNMOUNTING with timeoutID", timeoutID);
+      if (timeoutID) {
+        clearTimeout(timeoutID);
+      }
+    };
+  }, [timeoutID]);
+
+  useEffect(() => {
     // Scroll to the bottom of the screen every time a new chat is loaded
     refChatBox.current.scrollTop = refChatBox.current.scrollHeight;
     // console.log(refChatBox.current.scrollTop);
@@ -156,20 +182,38 @@ export const ChatsScreen = () => {
       try {
         setIsCallingActive(true);
 
-        let stream = await navigator.mediaDevices.getUserMedia({
+        let navigatorStream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: true,
         });
-        console.log(stream);
-        setStream(stream);
+        console.log(navigatorStream);
+        setStream(navigatorStream);
         if (userVideo.current) {
-          userVideo.current.srcObject = stream;
+          userVideo.current.srcObject = navigatorStream;
         }
+
+        setTimeoutID(
+          setTimeout(() => {
+            console.log("TIMEOUT ACTIVE");
+            console.log("CURRENT CALL STATE", callStatus);
+            if (callStatus !== "CONNECTED") {
+              setCallStatus("FAILED");
+              setIsCallingActive(false);
+              try {
+                closeCallStream(stream);
+              } catch (err) {
+                console.log(err);
+              }
+              setStream(null);
+              setOtherUserStream(null);
+            }
+          }, 10000)
+        );
 
         const peer = new Peer({
           initiator: true,
           trickle: false,
-          stream: stream,
+          stream: navigatorStream,
         });
 
         peer.on("signal", (data) => {
@@ -186,9 +230,10 @@ export const ChatsScreen = () => {
           // }
           console.log("SETTING OTHER USER STREAM", otherUser);
           setOtherUserStream(partnerStream);
-          console.log("stream", stream, "otro stream", partnerStream);
+          console.log("stream", navigatorStream, "otro stream", partnerStream);
           console.log("-----------------> stream");
           setIsCallingActive(false);
+          setCallStatus("CONNECTED");
           navigate("/video-call");
         });
 
@@ -309,24 +354,39 @@ export const ChatsScreen = () => {
       <Backdrop
         sx={{ color: "#fff", zIndex: 5 }}
         // open={open}
-        open={isCallingActive}
+        open={isCallingActive || callStatus === "FAILED"}
         // onClick={handleClose}
       >
-        <Grid
-          container
-          justifyContent={"center"}
-          alignItems={"center"}
-          flexDirection="column"
+        {isCallingActive && (
+          <Grid
+            container
+            justifyContent={"center"}
+            alignItems={"center"}
+            flexDirection="column"
+          >
+            <Grid item>
+              <CircularProgress color="inherit" />
+            </Grid>
+            <Grid item mt={5}>
+              <Typography variant="h6" color="inherit">
+                Trying to call {currentChatState.name}
+              </Typography>
+            </Grid>
+          </Grid>
+        )}
+        <Dialog
+          open={callStatus === "FAILED"}
+          onClose={handleCloseNotAnswered}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
         >
-          <Grid item>
-            <CircularProgress color="inherit" />
-          </Grid>
-          <Grid item mt={5}>
-            <Typography variant="h6" color="inherit">
-              Trying to call {currentChatState.name}
-            </Typography>
-          </Grid>
-        </Grid>
+          <DialogTitle id="alert-dialog-title">
+            User cannot be contacted. Call finished.
+          </DialogTitle>
+          <DialogActions>
+            <Button onClick={handleCloseNotAnswered}>Close</Button>
+          </DialogActions>
+        </Dialog>
       </Backdrop>
     </Grid>
   );

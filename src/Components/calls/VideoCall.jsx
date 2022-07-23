@@ -18,8 +18,15 @@ import { Navigate } from "react-router-dom";
 import { CALL_DEVELOPMENT } from "../../utils";
 export const VideoCall = () => {
   const [uiState, setUiState] = useState("loading");
-  const { otherUser, stream, callState, setCallState, socket, userState, otherUserStream } =
-    useContext(AppContext);
+  const {
+    otherUser,
+    stream,
+    callState,
+    setCallState,
+    socket,
+    userState,
+    otherUserStream,
+  } = useContext(AppContext);
   const myVideo = useRef();
   const partnerVideo = useRef();
   useEffect(() => {
@@ -90,6 +97,13 @@ export const VideoCall = () => {
     socket.emit("closeCall", { from: userState, to: otherUser });
   };
 
+  console.log(
+    "INSIDE VIDEO CALL",
+    " STREAM: ",
+    stream,
+    " OTHER USER STREAM: ",
+    otherUserStream
+  );
   return (
     <>
       {(!stream || !otherUserStream) && !CALL_DEVELOPMENT ? (
