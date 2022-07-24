@@ -52,6 +52,8 @@ export const AppRouter = () => {
 
   const [callClosed, setCallClosed] = useState(false);
 
+  const [callExpired, setCallExpired] = useState(false);
+
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -91,10 +93,27 @@ export const AppRouter = () => {
       } catch (err) {
         console.log(err);
       }
-      console.log("NULLING CALL STATE")
+      console.log("NULLING CALL STATE");
       setCallClosed(true);
       setOtherUserStream(null);
       setStream(null);
+    });
+
+    newSocket.on("callExpired", ({ from, to }) => {
+      setNewCallReceived(false);
+      console.log("CALL EXPIRED");
+      setCallState(null);
+      try {
+        closeCallStream(stream);
+      } catch (err) {
+        console.log(err);
+      }
+      console.log("NULLING CALL STATE");
+      setCallClosed(false);
+      setOtherUserStream(null);
+      setStream(null);
+      setCallExpired(true);
+      setOtherUser(from);
     });
 
     setSocket(newSocket);
@@ -116,6 +135,11 @@ export const AppRouter = () => {
     setNewCallReceived(false);
     setCallClosed(false);
     socket.emit("declineCall", { to: otherUser, from: userState });
+  };
+
+  const handleCloseExpiredCall = () => {
+    setOtherUser(null);
+    setCallExpired(false);
   };
 
   const acceptCall = () => {
@@ -303,6 +327,30 @@ export const AppRouter = () => {
             <Button onClick={handleClose}>Close</Button>
           </DialogActions>
         </Dialog>
+      </Backdrop>
+      {/* with */}
+
+      <Backdrop
+        sx={{ color: "#fff", zIndex: 5 }}
+        // open={open}
+        open={callExpired && !!otherUser && otherUser?.username}
+        // onClick={handleClose}
+      >
+        {otherUser?.username && (
+          <Dialog
+            open={callExpired && !!otherUser && otherUser?.username}
+            onClose={handleCloseExpiredCall}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              You have a missing call from {otherUser?.username}
+            </DialogTitle>
+            <DialogActions>
+              <Button onClick={handleCloseExpiredCall}>Close</Button>
+            </DialogActions>
+          </Dialog>
+        )}
       </Backdrop>
     </>
   );

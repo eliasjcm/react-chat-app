@@ -91,10 +91,13 @@ export const ChatsScreen = () => {
 
   const handleCloseNotAnswered = () => {
     setIsCallingActive(false);
-    if (callStatus === "DECLINED") {
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+    setCallStatus("NONE");
+  };
+
+  const handleCloseCallDeclined = () => {
+    setIsCallingActive(false);
+    if (timeoutID) {
+      clearTimeout(timeoutID);
     }
     setCallStatus("NONE");
   };
@@ -162,6 +165,13 @@ export const ChatsScreen = () => {
   }, [timeoutID]);
 
   useEffect(() => {
+    console.log(
+      "-------------------------------------- OTHER USER CHANGED NOW IT IS ",
+      otherUser
+    );
+  }, [otherUser]);
+
+  useEffect(() => {
     // Scroll to the bottom of the screen every time a new chat is loaded
     refChatBox.current.scrollTop = refChatBox.current.scrollHeight;
     // console.log(refChatBox.current.scrollTop);
@@ -202,6 +212,18 @@ export const ChatsScreen = () => {
             console.log("TIMEOUT ACTIVE");
             console.log("CURRENT CALL STATE", callStatus);
             if (callStatus !== "CONNECTED") {
+              setOtherUser((otherUser) => {
+                console.log(
+                  "CALL EXPIRED, FROM: ",
+                  userState,
+                  "TO: ",
+                  otherUser
+                );
+
+                socket.emit("callExpired", { from: userState, to: otherUser });
+                return otherUser;
+              });
+
               setCallStatus("FAILED");
               setIsCallingActive(false);
               try {
@@ -212,7 +234,7 @@ export const ChatsScreen = () => {
               setStream(null);
               setOtherUserStream(null);
             }
-          }, 10000)
+          }, 11000)
         );
 
         const peer = new Peer({
@@ -379,9 +401,9 @@ export const ChatsScreen = () => {
         sx={{ color: "#fff", zIndex: 5 }}
         // open={open}
         open={
-          isCallingActive ||
-          callStatus === "FAILED" ||
-          callStatus === "DECLINED"
+          (isCallingActive && callStatus === "NONE") ||
+          (isCallingActive &&
+            (callStatus === "FAILED" || callStatus === "DECLINED"))
         }
         // onClick={handleClose}
       >
@@ -403,18 +425,29 @@ export const ChatsScreen = () => {
           </Grid>
         )}
         <Dialog
-          open={callStatus === "FAILED" || callStatus === "DECLINED"}
+          open={callStatus === "FAILED"}
           onClose={handleCloseNotAnswered}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            {callStatus === "FAILED"
-              ? "User cannot be contacted. Call finished."
-              : "User declined the call."}
+            User cannot be contacted. Call finished.
           </DialogTitle>
           <DialogActions>
             <Button onClick={handleCloseNotAnswered}>Close</Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={callStatus === "DECLINED"}
+          onClose={handleCloseCallDeclined}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            User declined the call.
+          </DialogTitle>
+          <DialogActions>
+            <Button onClick={handleCloseCallDeclined}>Close</Button>
           </DialogActions>
         </Dialog>
       </Backdrop>
