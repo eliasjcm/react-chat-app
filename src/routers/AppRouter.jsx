@@ -172,23 +172,22 @@ export const AppRouter = () => {
 
   return (
     <>
-      <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static">
-          <Toolbar>
-            <Link style={{ marginRight: "20px" }} to="/">
-              <Typography
-                variant="h6"
-                noWrap
-                component="div"
-                // sx={{
-                //   mr: 2,
-                //   display: { xs: "none", md: "flex" },
-                // }}
-              >
-                ChatApp
-              </Typography>
-            </Link>
-            {/* <IconButton
+      <AppBar position="sticky">
+        <Toolbar>
+          <Link style={{ marginRight: "20px" }} to="/">
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              // sx={{
+              //   mr: 2,
+              //   display: { xs: "none", md: "flex" },
+              // }}
+            >
+              ChatApp
+            </Typography>
+          </Link>
+          {/* <IconButton
         size="large"
         edge="start"
         color="inherit"
@@ -197,37 +196,19 @@ export const AppRouter = () => {
       >
         <MenuIcon />
       </IconButton> */}
-            <Link to="/friends">
-              <Typography variant="h6" component="div">
-                Friends
-              </Typography>
-            </Link>
-            <Link to="/chats">
-              <Typography variant="h6" component="div" sx={{ marginLeft: 2 }}>
-                Chats
-              </Typography>
-            </Link>
-            {!location.pathname.startsWith("/video-call") && !!callState && (
-              <Link
-                to="/video-call"
-                style={{ marginLeft: "auto", marginRight: "10px" }}
-              >
-                <Box
-                  display={"flex"}
-                  alignItems={"center"}
-                  sx={{
-                    backgroundColor: "primary.dark",
-                    padding: "5px 10px",
-                    borderRadius: "5px",
-                    //   border: "1px solid black",
-                  }}
-                >
-                  <Typography>Call in progress, click to come back.</Typography>
-                </Box>
-              </Link>
-            )}
+          <Link to="/friends">
+            <Typography variant="h6" component="div">
+              Friends
+            </Typography>
+          </Link>
+          <Link to="/chats">
+            <Typography variant="h6" component="div" sx={{ marginLeft: 2 }}>
+              Chats
+            </Typography>
+          </Link>
+          {!location.pathname.startsWith("/video-call") && !!callState && (
             <Link
-              to="/myProfile"
+              to="/video-call"
               style={{ marginLeft: "auto", marginRight: "10px" }}
             >
               <Box
@@ -240,37 +221,54 @@ export const AppRouter = () => {
                   //   border: "1px solid black",
                 }}
               >
-                <Avatar
-                  sx={{
-                    bgcolor: deepOrange[500],
-                    width: "30px",
-                    height: "30px",
-                  }}
-                >
-                  {userState?.username && userState.username[0]}
-                </Avatar>
-                <Typography sx={{ marginLeft: 1 }}>
-                  @{userState.username}
-                </Typography>{" "}
+                <Typography>Call in progress, click to come back.</Typography>
               </Box>
             </Link>
-            <Button
-              color="inherit"
-              //   sx={{ marginLeft: "auto" }}
-              // onClick={() => {
-              //   setUserState({
-              //     isConnected: false,
-              //     id: undefined,
-              //     username: undefined,
-              //   });
-              //   // <navigate("/login")>;
-              // }}
+          )}
+          <Link
+            to="/myProfile"
+            style={{ marginLeft: "auto", marginRight: "10px" }}
+          >
+            <Box
+              display={"flex"}
+              alignItems={"center"}
+              sx={{
+                backgroundColor: "primary.dark",
+                padding: "5px 10px",
+                borderRadius: "5px",
+                //   border: "1px solid black",
+              }}
             >
-              LOGOUT
-            </Button>
-          </Toolbar>
-        </AppBar>
-      </Box>
+              <Avatar
+                sx={{
+                  bgcolor: deepOrange[500],
+                  width: "30px",
+                  height: "30px",
+                }}
+              >
+                {userState?.username && userState.username[0]}
+              </Avatar>
+              <Typography sx={{ marginLeft: 1 }}>
+                @{userState.username}
+              </Typography>{" "}
+            </Box>
+          </Link>
+          <Button
+            color="inherit"
+            //   sx={{ marginLeft: "auto" }}
+            // onClick={() => {
+            //   setUserState({
+            //     isConnected: false,
+            //     id: undefined,
+            //     username: undefined,
+            //   });
+            //   // <navigate("/login")>;
+            // }}
+          >
+            LOGOUT
+          </Button>
+        </Toolbar>
+      </AppBar>
       <Routes>
         <Route path="/chats" element={<ChatsScreen />} />
         <Route path="/friends" element={<FriendsScreen />} />

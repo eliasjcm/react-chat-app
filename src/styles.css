@@ -3,8 +3,13 @@ html {
   margin: 0;
   padding: 0;
 }
+
 * {
   box-sizing: border-box;
+}
+
+#root {
+  height: 100vh;
 }
 
 a {
@@ -12,7 +17,7 @@ a {
   color: inherit;
 }
 
-.chat-msg + .chat-msg {
+.chat-msg+.chat-msg {
   margin-top: 5px;
 }
 
@@ -24,6 +29,7 @@ a {
   margin-left: 15px;
   background-color: wheat;
 }
+
 .chat-msg-sent {
   margin-right: 15px;
   background-color: aquamarine;
@@ -42,8 +48,8 @@ a {
   font-size: 0.8em;
 }
 
-.chat-msg-received + .chat-msg-sent,
-.chat-msg-sent + .chat-msg-received {
+.chat-msg-received+.chat-msg-sent,
+.chat-msg-sent+.chat-msg-received {
   margin-top: 10px;
 }
 
