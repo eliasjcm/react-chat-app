@@ -128,13 +128,13 @@ export const VideoCall = () => {
           overflow={"hidden"}
           sx={{
             "@media (min-width:600px)": {
-              height: "calc(100vh - 64px)",
+              height: "calc(100% - 64px)",
             },
             "@media (min-width:0px)": {
-              height: "calc(100vh - 56px)",
+              height: "calc(100% - 56px)",
             },
             "@media (min-width:0px) and (orientation: landscape)": {
-              height: "calc(100vh - 64px)",
+              height: "calc(100% - 64px)",
             },
           }}
         >

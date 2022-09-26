@@ -16,6 +16,7 @@
     "react-jwt": "^1.1.4",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",
+    "sass": "^1.55.0",
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.4.1",
     "web-vitals": "^2.1.2"

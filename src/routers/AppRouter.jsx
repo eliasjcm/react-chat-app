@@ -20,8 +20,15 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
+  Container,
+  Menu,
+  MenuItem,
+  IconButton,
 } from "@mui/material";
 import Peer from "simple-peer";
+import LogoutIcon from "@mui/icons-material/Logout";
+import MenuIcon from "@mui/icons-material/Menu";
+import AdbIcon from "@mui/icons-material/Adb";
 
 import { ChatsScreen } from "../Components/chats/ChatsScreen";
 import { FriendsScreen } from "../Components/friends/FriendsScreen";
@@ -36,6 +43,28 @@ import { HOSTNAME } from "../utils";
 import { closeCallStream } from "../helpers/calls";
 
 export const AppRouter = () => {
+  const pages = [
+    { text: "Friends", link: "/friends" },
+    { text: "Chats", link: "/chats" },
+  ];
+  // const settings = ["Profile", "Account", "Dashboard", "Logout"];
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget);
+  };
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
   const {
     userState,
     setSocket,
@@ -173,8 +202,9 @@ export const AppRouter = () => {
   return (
     <>
       <AppBar position="sticky">
+        {/* <Container maxWidth="xl"> */}
         <Toolbar>
-          <Link style={{ marginRight: "20px" }} to="/">
+          {/* <Link style={{ marginRight: "20px" }} to="/">
             <Typography
               variant="h6"
               noWrap
@@ -186,7 +216,8 @@ export const AppRouter = () => {
             >
               ChatApp
             </Typography>
-          </Link>
+          </Link> */}
+
           {/* <IconButton
         size="large"
         edge="start"
@@ -196,14 +227,107 @@ export const AppRouter = () => {
       >
         <MenuIcon />
       </IconButton> */}
-          <Link to="/friends">
-            <Typography variant="h6" component="div">
-              Friends
+
+          {/* <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+          <Typography
+            variant="h6"
+            noWrap
+            component="a"
+            href="/"
+            sx={{
+              mr: 2,
+              display: { xs: "none", md: "flex" },
+              fontFamily: "monospace",
+              fontWeight: 700,
+              letterSpacing: ".3rem",
+              color: "inherit",
+              textDecoration: "none",
+            }}
+          >
+            LOGO
+          </Typography> */}
+          {/* <Link style={{ marginRight: "20px" }} to="/">
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              // sx={{
+              //   mr: 2,
+              //   display: { xs: "none", md: "flex" },
+              // }}
+            >
+              ChatApp
             </Typography>
-          </Link>
-          <Link to="/chats">
-            <Typography variant="h6" component="div" sx={{ marginLeft: 2 }}>
-              Chats
+          </Link> */}
+          <Box sx={{ display: { xs: "flex", md: "none" } }}>
+            <IconButton
+              size="large"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleOpenNavMenu}
+              color="inherit"
+            >
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorElNav}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
+              sx={{
+                display: { xs: "block", md: "none" },
+              }}
+            >
+              {pages.map((page) => (
+                <Link to={page.link}>
+                  <MenuItem key={page} onClick={handleCloseNavMenu}>
+                    <Typography textAlign="center">{page.text}</Typography>
+                  </MenuItem>
+                </Link>
+              ))}
+            </Menu>
+          </Box>
+          {/* <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+          <Typography
+            variant="h5"
+            noWrap
+            component="a"
+            href=""
+            sx={{
+              mr: 2,
+              display: { xs: "flex", md: "none" },
+              flexGrow: 1,
+              fontFamily: "monospace",
+              fontWeight: 700,
+              letterSpacing: ".3rem",
+              color: "inherit",
+              textDecoration: "none",
+            }}
+          >
+            LOGO
+          </Typography> */}
+
+          <Link style={{ marginRight: "20px" }} to="/" sx={{}}>
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              // sx={{
+              //   mr: 2,
+              //   display: { xs: "none", md: "flex" },
+              // }}
+            >
+              ChatApp
             </Typography>
           </Link>
           {!location.pathname.startsWith("/video-call") && !!callState && (
@@ -225,49 +349,82 @@ export const AppRouter = () => {
               </Box>
             </Link>
           )}
-          <Link
-            to="/myProfile"
-            style={{ marginLeft: "auto", marginRight: "10px" }}
-          >
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+            <Link to="/friends">
+              <Typography variant="h6" component="div">
+                Friends
+              </Typography>
+            </Link>
+            <Link to="/chats">
+              <Typography variant="h6" component="div" sx={{ marginLeft: 2 }}>
+                Chats
+              </Typography>
+            </Link>
+          </Box>
+
+          {!(!location.pathname.startsWith("/video-call") && !!callState) && (
             <Box
-              display={"flex"}
+              display="flex"
+              justifyContent={"center"}
               alignItems={"center"}
-              sx={{
-                backgroundColor: "primary.dark",
-                padding: "5px 10px",
-                borderRadius: "5px",
-                //   border: "1px solid black",
-              }}
+              sx={{ marginLeft: "auto"}}
             >
-              <Avatar
-                sx={{
-                  bgcolor: deepOrange[500],
-                  width: "30px",
-                  height: "30px",
+              <Link
+                to="/myProfile"
+                style={{
+                  md: {
+                    // marginLeft: "auto",
+                    marginRight: "10px",
+                    // xs: { justifySelf: "end" },
+                  },
                 }}
               >
-                {userState?.username && userState.username[0]}
-              </Avatar>
-              <Typography sx={{ marginLeft: 1 }}>
-                @{userState.username}
-              </Typography>{" "}
+                <Box
+                  display={"flex"}
+                  alignItems={"center"}
+                  sx={{
+                    backgroundColor: "primary.dark",
+                    padding: "5px 10px",
+                    borderRadius: "5px",
+                    //   border: "1px solid black",
+                  }}
+                >
+                  <Avatar
+                    sx={{
+                      bgcolor: deepOrange[500],
+                      width: "30px",
+                      height: "30px",
+                    }}
+                  >
+                    {userState?.username && userState.username[0]}
+                  </Avatar>
+                  <Typography sx={{ marginLeft: 1 }}>
+                    @{userState.username}
+                  </Typography>{" "}
+                </Box>
+              </Link>
+              <LogoutIcon
+                sx={{ display: { xs: "flex", md: "none" }, ml: 1 }}
+              ></LogoutIcon>
+              <Button
+                sx={{ display: { xs: "none", md: "flex" } }}
+                color="inherit"
+                //   sx={{ marginLeft: "auto" }}
+                // onClick={() => {
+                //   setUserState({
+                //     isConnected: false,
+                //     id: undefined,
+                //     username: undefined,
+                //   });
+                //   // <navigate("/login")>;
+                // }}
+              >
+                LOGOUT
+              </Button>
             </Box>
-          </Link>
-          <Button
-            color="inherit"
-            //   sx={{ marginLeft: "auto" }}
-            // onClick={() => {
-            //   setUserState({
-            //     isConnected: false,
-            //     id: undefined,
-            //     username: undefined,
-            //   });
-            //   // <navigate("/login")>;
-            // }}
-          >
-            LOGOUT
-          </Button>
+          )}
         </Toolbar>
+        {/* </Container> */}
       </AppBar>
       <Routes>
         <Route path="/chats" element={<ChatsScreen />} />
@@ -278,7 +435,7 @@ export const AppRouter = () => {
         <Route path="/video-call" element={<VideoCall />} />
         <Route path="*" element={<FriendsScreen />} />
       </Routes>
-      <Backdrop
+      {/* <Backdrop
         sx={{ color: "#fff", zIndex: 5 }}
         // open={open}
         open={newCallReceived}
@@ -305,8 +462,8 @@ export const AppRouter = () => {
             </Button>
           </DialogActions>
         </Dialog>
-      </Backdrop>
-      <Backdrop
+      </Backdrop> */}
+      {/* <Backdrop
         sx={{ color: "#fff", zIndex: 5 }}
         // open={open}
         open={callClosed}
@@ -325,10 +482,10 @@ export const AppRouter = () => {
             <Button onClick={handleClose}>Close</Button>
           </DialogActions>
         </Dialog>
-      </Backdrop>
+      </Backdrop> */}
       {/* with */}
 
-      <Backdrop
+      {/* <Backdrop
         sx={{ color: "#fff", zIndex: 5 }}
         // open={open}
         open={callExpired && !!otherUser && otherUser?.username}
@@ -349,7 +506,7 @@ export const AppRouter = () => {
             </DialogActions>
           </Dialog>
         )}
-      </Backdrop>
+      </Backdrop> */}
     </>
   );
 };

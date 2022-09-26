@@ -2,6 +2,8 @@ body,
 html {
   margin: 0;
   padding: 0;
+  height: 100%;
+
 }
 
 * {
@@ -9,7 +11,15 @@ html {
 }
 
 #root {
-  height: 100vh;
+  // height: 100vh;
+  // height: 100vh; /* Fallback for browsers that do not support Custom Properties */
+  // height: calc(var(--vh, 1vh) * 100);
+  // height: ;
+  height: -webkit-fill-available;
+  // overflow-x: hidden;
+
+
+  // overflow-y: hidden !important;
 }
 
 a {
@@ -17,7 +27,7 @@ a {
   color: inherit;
 }
 
-.chat-msg+.chat-msg {
+.chat-msg + .chat-msg {
   margin-top: 5px;
 }
 
@@ -48,8 +58,8 @@ a {
   font-size: 0.8em;
 }
 
-.chat-msg-received+.chat-msg-sent,
-.chat-msg-sent+.chat-msg-received {
+.chat-msg-received + .chat-msg-sent,
+.chat-msg-sent + .chat-msg-received {
   margin-top: 10px;
 }
 

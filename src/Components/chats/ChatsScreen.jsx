@@ -22,7 +22,7 @@ import Peer from "simple-peer";
 import ImageSearchIcon from "@mui/icons-material/ImageSearch";
 import CallIcon from "@mui/icons-material/Call";
 
-import "../../styles.css";
+import "../../styles.scss";
 import { AppContext } from "../../context/AppContext";
 import { useNavigate } from "react-router-dom";
 import { ChatsList } from "./ChatsList";
@@ -397,7 +397,7 @@ export const ChatsScreen = () => {
         </Grid>
       </Grid>
       {/* BACKDROP FOR MESSAGE: */}
-      <Backdrop
+      {/* <Backdrop
         sx={{ color: "#fff", zIndex: 5 }}
         // open={open}
         open={
@@ -424,7 +424,7 @@ export const ChatsScreen = () => {
             </Grid>
           </Grid>
         )}
-        <Dialog
+        {<Dialog
           open={callStatus === "FAILED"}
           onClose={handleCloseNotAnswered}
           aria-labelledby="alert-dialog-title"
@@ -450,7 +450,7 @@ export const ChatsScreen = () => {
             <Button onClick={handleCloseCallDeclined}>Close</Button>
           </DialogActions>
         </Dialog>
-      </Backdrop>
+      </Backdrop>} */}
     </Grid>
   );
 };

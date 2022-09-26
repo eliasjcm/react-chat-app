@@ -1,0 +1,3 @@
+[0925/154051.949:ERROR:registration_protocol_win.cc(107)] CreateFile: El sistema no puede encontrar el archivo especificado. (0x2)
+[0925/154052.359:ERROR:registration_protocol_win.cc(107)] CreateFile: El sistema no puede encontrar el archivo especificado. (0x2)
+[0925/154052.377:ERROR:registration_protocol_win.cc(107)] CreateFile: El sistema no puede encontrar el archivo especificado. (0x2)

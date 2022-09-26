@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Alert, Box, Button, Grid, TextField, Typography } from "@mui/material";
 import { useJwt } from "react-jwt";
-import "../../styles.css";
+import "../../styles.scss";
 import { AppContext } from "../../context/AppContext";
 import { useNavigate } from "react-router-dom";
 import { HOSTNAME } from "../../utils";
@@ -21,38 +21,45 @@ export const LoginScreen = () => {
 
   const handleLogin = async () => {
     setAlertMessage({ severity: "" });
-    const response = await fetch(`${HOSTNAME}/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: loginState.username,
-        password: loginState.password,
-      }),
-    });
-    console.log(response);
-    const responseBody = await response.json();
-    if (response.ok) {
-      setAlertMessage({
-        msg: "Login Successfulu",
-        severity: "success",
+    try {
+      const response = await fetch(`${HOSTNAME}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: loginState.username,
+          password: loginState.password,
+        }),
       });
-      // const { decodedToken, isExpired } = useJwt(responseBody.token);
-      // responseBody.token
-      // {
-      //   isConnected: true,
-      //   id: decodedToken.id,
-      //   username: decodedToken.username,
-      // }
-      setUserState({ isLogged: true });
-      // reEvaluateToken(responseBody.token);
-      setCurrentToken(responseBody.token);
-      localStorage.setItem("token", responseBody.token);
-      navigate("/", { replace: true });
-    } else {
+      console.log(response);
+      const responseBody = await response.json();
+      if (response.ok) {
+        setAlertMessage({
+          msg: "Login Successfulu",
+          severity: "success",
+        });
+        // const { decodedToken, isExpired } = useJwt(responseBody.token);
+        // responseBody.token
+        // {
+        //   isConnected: true,
+        //   id: decodedToken.id,
+        //   username: decodedToken.username,
+        // }
+        setUserState({ isLogged: true });
+        // reEvaluateToken(responseBody.token);
+        setCurrentToken(responseBody.token);
+        localStorage.setItem("token", responseBody.token);
+        navigate("/", { replace: true });
+      } else {
+        setAlertMessage({
+          msg: responseBody.error,
+          severity: "error",
+        });
+      }
+    } catch (err) {
       setAlertMessage({
-        msg: responseBody.error,
+        msg: err,
         severity: "error",
       });
     }
