@@ -435,7 +435,7 @@ export const AppRouter = () => {
         <Route path="/video-call" element={<VideoCall />} />
         <Route path="*" element={<FriendsScreen />} />
       </Routes>
-      {/* <Backdrop
+      <Backdrop
         sx={{ color: "#fff", zIndex: 5 }}
         // open={open}
         open={newCallReceived}
@@ -462,8 +462,8 @@ export const AppRouter = () => {
             </Button>
           </DialogActions>
         </Dialog>
-      </Backdrop> */}
-      {/* <Backdrop
+      </Backdrop>
+      <Backdrop
         sx={{ color: "#fff", zIndex: 5 }}
         // open={open}
         open={callClosed}
@@ -482,10 +482,10 @@ export const AppRouter = () => {
             <Button onClick={handleClose}>Close</Button>
           </DialogActions>
         </Dialog>
-      </Backdrop> */}
+      </Backdrop>
       {/* with */}
 
-      {/* <Backdrop
+      <Backdrop
         sx={{ color: "#fff", zIndex: 5 }}
         // open={open}
         open={callExpired && !!otherUser && otherUser?.username}
@@ -506,7 +506,7 @@ export const AppRouter = () => {
             </DialogActions>
           </Dialog>
         )}
-      </Backdrop> */}
+      </Backdrop>
     </>
   );
 };

@@ -308,18 +308,20 @@ export const ChatsScreen = () => {
       container
       alignItems="center"
       direction="column"
-      style={{ width: "100vw", maxWidth: "90vw", paddingTop: "2vh" }}
+      sx={{ width: "100%", maxWidth: {md: "90vw"}, margin: "0 auto", paddingTop: "2vh" }}
     >
       <Grid container direction="row">
-        <Grid item xs={3}>
+        <Grid item xs={12} md={3}>
           <ChatsList />
         </Grid>
-        <Grid item xs={9} container direction="column">
+        <Grid item xs={0} display={{ xs: "none", md: "block" }} md={9} container direction="column">
           <Box
             xs={3}
+
             sx={{
+              
               // width: 300,
-              // height: 300,
+              height: "15vh",
               backgroundColor: "primary.dark",
               color: "white",
               // '&:hover': {
@@ -327,7 +329,7 @@ export const ChatsScreen = () => {
               //   opacity: [0.9, 0.8, 0.7],
             }}
           >
-            <List>
+            <List sx={{display: "block", margin: "auto 0", height: "100%"}}>
               <ListItem>
                 <ListItemAvatar>
                   <Avatar sx={{ bgcolor: deepOrange[500] }}>
@@ -397,7 +399,7 @@ export const ChatsScreen = () => {
         </Grid>
       </Grid>
       {/* BACKDROP FOR MESSAGE: */}
-      {/* <Backdrop
+      <Backdrop
         sx={{ color: "#fff", zIndex: 5 }}
         // open={open}
         open={
@@ -424,7 +426,7 @@ export const ChatsScreen = () => {
             </Grid>
           </Grid>
         )}
-        {<Dialog
+        <Dialog
           open={callStatus === "FAILED"}
           onClose={handleCloseNotAnswered}
           aria-labelledby="alert-dialog-title"
@@ -450,7 +452,7 @@ export const ChatsScreen = () => {
             <Button onClick={handleCloseCallDeclined}>Close</Button>
           </DialogActions>
         </Dialog>
-      </Backdrop>} */}
+      </Backdrop>
     </Grid>
   );
 };

@@ -1,11 +1,12 @@
-import { deepOrange } from "@mui/material/colors";
+import { blue, deepOrange } from "@mui/material/colors";
 import {
   Avatar,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
-  Box
+  Box,
+  Typography
 } from "@mui/material";
 import React, { useContext } from "react";
 import { AppContext } from "../../context/AppContext";
@@ -29,6 +30,10 @@ export const ChatsList = () => {
   };
 
   return (
+    <Box>
+      <Box sx={{bgcolor: blue[700]}}>
+      <Typography sx={{height: "8vh"}}>Conversaciones</Typography>
+      </Box>
     <List className="chat-list" sx={{ padding: 0 }}>
       {chatsListState.map((chat) => (
         <Box
@@ -49,5 +54,6 @@ export const ChatsList = () => {
         </Box>
       ))}
     </List>
+    </Box>
   );
 };
