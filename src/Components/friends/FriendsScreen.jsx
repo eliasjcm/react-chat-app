@@ -5,6 +5,7 @@ import {
   Button,
   Grid,
   IconButton,
+  LinearProgress,
   ListItemText,
   TextField,
   Toolbar,
@@ -16,10 +17,18 @@ import { UserCard } from "./UserCard";
 import MenuIcon from "@mui/icons-material/Menu";
 import { UserCardsList } from "./UserCardsList";
 import { HOSTNAME } from "../../utils";
+import { display } from "@mui/system";
+import { Loading } from "../ui/Loading";
 
 export const FriendsScreen = () => {
-  const { usersListState, setUsersListState, searchState, setSearchState } =
-    useContext(AppContext);
+  const {
+    usersListState,
+    setUsersListState,
+    searchState,
+    setSearchState,
+    uiState,
+    setUiState,
+  } = useContext(AppContext);
 
   const [screenState, setScreenState] = useState({
     inSearch: false,
@@ -47,14 +56,11 @@ export const FriendsScreen = () => {
   };
 
   const askFriends = async () => {
-    const request = await fetch(
-      `${HOSTNAME}/users?onlyFriends=true`,
-      {
-        headers: {
-          authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+    const request = await fetch(`${HOSTNAME}/users?onlyFriends=true`, {
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
     console.log(request);
     const friendsRes = await request.json();
     console.log(friendsRes);
@@ -62,8 +68,10 @@ export const FriendsScreen = () => {
     return friendsRes;
   };
   useEffect(async () => {
+    setUiState({ state: "loading" });
     const friends = await askFriends();
     setUsersListState(friends);
+    setUiState({ state: "ready" });
   }, []);
   return (
     <div style={{ padding: "15px" }}>
@@ -121,7 +129,9 @@ export const FriendsScreen = () => {
           <Typography variant="h4" marginTop={10} marginBottom={4}>
             Your Friends
           </Typography>
-          {usersListState.length > 0 ? (
+          {uiState.state === "loading" ? (
+            <Loading />
+          ) : usersListState.length > 0 ? (
             <UserCardsList usersList={usersListState} />
           ) : (
             <Alert severity="warning">You have no friends!</Alert>

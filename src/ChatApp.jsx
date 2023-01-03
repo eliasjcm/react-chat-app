@@ -19,7 +19,7 @@ import { PrivateRoute } from "./routers/PrivateRoute";
 import jwt_decode from "jwt-decode";
 
 const currentChat = {
-  name: "Lucas",
+  name: null,
   id: 10,
   newMessage: "",
   chatMessages: [
@@ -95,6 +95,8 @@ export const ChatApp = () => {
     { name: "Luigi", username: "lugi32", id: 54 },
     { name: "Luigi", username: "lugi32", id: 64 },
   ]);
+
+  const [uiState, setUiState] = useState({});
 
   const [postsListState, setPostsListState] = useState([
     {
@@ -193,6 +195,8 @@ export const ChatApp = () => {
         setCallState,
         otherUserStream,
         setOtherUserStream,
+        uiState,
+        setUiState,
       }}
     >
       {userState && (

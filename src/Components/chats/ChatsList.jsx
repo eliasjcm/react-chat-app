@@ -31,8 +31,8 @@ export const ChatsList = () => {
 
   return (
     <Box>
-      <Box sx={{bgcolor: blue[700]}}>
-      <Typography sx={{height: "8vh"}}>Conversaciones</Typography>
+      <Box sx={{height: 80, bgcolor: blue[700], display: "flex"}} pl={2} >
+      <Typography sx={{color: "white"}} fontSize={20}>Chats</Typography>
       </Box>
     <List className="chat-list" sx={{ padding: 0 }}>
       {chatsListState.map((chat) => (
