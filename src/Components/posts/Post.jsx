@@ -14,12 +14,17 @@ import {
 } from "@mui/material";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import { deepOrange } from "@mui/material/colors";
+import { ThumbUpOffAlt } from "@mui/icons-material";
 
 export const Post = ({
   publisher,
   createdAt,
   content,
   likesCount,
+  liked,
+  id,
+  handleLike,
+  handleUnlike,
 }) => {
   return (
     <Box
@@ -68,7 +73,18 @@ export const Post = ({
           </Box>
         )}
         <Divider light sx={{ marginTop: 2, marginBottom: 1 }} />
-        <Button startIcon={<ThumbUpIcon />}>Like</Button>
+        {liked ? (
+          <Button startIcon={<ThumbUpIcon />} onClick={() => handleUnlike(id)}>
+            Like
+          </Button>
+        ) : (
+          <Button
+            startIcon={<ThumbUpOffAlt />}
+            onClick={() => handleLike(id)}
+          >
+            Like
+          </Button>
+        )}
       </Box>
     </Box>
   );

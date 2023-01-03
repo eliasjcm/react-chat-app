@@ -24,6 +24,8 @@ import { AppContext } from "../../context/AppContext";
 import { deepOrange } from "@mui/material/colors";
 import { Post } from "../posts/Post";
 import { HOSTNAME } from "../../utils";
+import { SnackbarMsg } from "./Snackbar";
+import axios from "axios";
 
 export const MainScreen = () => {
   const [ui, setUi] = useState("loading");
@@ -33,15 +35,48 @@ export const MainScreen = () => {
     setPostListState,
     decodedToken,
     setPostsListState,
+    uiState,
+    setUiState,
   } = useContext(AppContext);
   const [postText, setPostText] = useState("");
 
   const [open, setOpen] = React.useState(false);
 
   const handleCreatePost = () => {
-    console.log(postText);
-    setOpen(true);
-    setPostText("");
+    (async () => {
+      // const request = await fetch(`${HOSTNAME}/posts/${userState.id}}`, {
+      //   headers: {
+      //     authorization: `Bearer ${localStorage.getItem("token")}`,
+      //   },
+      // });
+      const post = await axios.post(
+        `${HOSTNAME}/posts/create`,
+        {
+          content: postText,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      console.log(post);
+      const response = post.data;
+
+      if (post.status === 200) {
+        setOpen(true);
+        setPostText("");
+      } else {
+        alert(response.error);
+      }
+
+      // if (post.error) {
+      //   alert(response.error);
+      // } else {
+      //   setOpen(true);
+      //   setPostText("");
+      // }
+    })();
   };
 
   const handleClose = (event, reason) => {
@@ -54,10 +89,6 @@ export const MainScreen = () => {
 
   useEffect(() => {
     (async () => {
-      // const handleFindFriends = async (e) => {
-      // console.log("Asking for a friend");
-      // e.preventDefault();
-      // console.log("USERSTATE", decodedToken);
       const request = await fetch(`${HOSTNAME}/posts/${userState.id}}`, {
         headers: {
           authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -66,20 +97,87 @@ export const MainScreen = () => {
       // console.log(request);
       const response = await request.json();
       setPostsListState(response);
-      // console.log(response);
-      // const friendsRes = await request.json();
-      // console.log(friendsRes);
-      // setUsersListState(friendsRes);
-      // setScreenState({ ...screenState, inSearch: true });
-      // };
-      // const request = await fetch(`${HOSTNAME}/posts/` )
+
       setUi("loaded");
+      setUiState({ ...uiState, userInputPost: false });
     })();
   }, []);
 
+  const handleLike = (postId) => {
+    console.log("handleLike was called with postId: ", postId);
+    (async () => {
+      const post = await axios.post(
+        `${HOSTNAME}/posts/like/${postId}`,
+        {},
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      console.log(post);
+      const response = post.data;
+
+      if (post.status === 200) {
+        console.log("like")
+        setPostsListState(
+          postsListState.map((post) => {
+            if (post.id === postId) {
+              console.log("current post LIKES: ", post.likes);
+              let currentPostLikes = post.likesCount || 0;
+              return { ...post, likesCount: currentPostLikes + 1, liked: true };
+            }
+            return post;
+          })
+        );
+      } else {
+        alert(response.error);
+      }
+    })();
+  };
+
+  const handleUnlike = (postId) => {
+    console.log("handleUnlike was called with postId: ", postId);
+    (async () => {
+      const post = await axios.post(
+        `${HOSTNAME}/posts/unlike/${postId}`,
+        {},
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      console.log(post);
+
+      const response = post.data;
+      if (post.status === 200) {
+        console.log("unlike")
+        setPostsListState(
+          postsListState.map((post) => {
+            if (post.id === postId) {
+              console.log("current post LIKES: ", post.likes);
+
+              return { ...post, likesCount: post.likesCount - 1, liked: false };
+            }
+            return post;
+          })
+        );
+      } else {
+        alert(response.error);
+      }
+    })();
+  };
+
   const navigate = useNavigate();
   return (
-    <div style={{ backgroundColor: "#fafbfc", minHeight: "90vh", padding: "0 2vw" }}>
+    <div
+      style={{
+        backgroundColor: "#fafbfc",
+        minHeight: "90vh",
+        padding: "0 2vw",
+      }}
+    >
       {/* <div>Welcome {userState.username}</div> */}
       <Box
         sx={{
@@ -109,11 +207,17 @@ export const MainScreen = () => {
           InputProps={{ disableUnderline: true }}
           sx={{ width: "50vw" }}
           value={postText}
-          onChange={(e) => setPostText(e.target.value)}
-          {...(postText.length == 0 && {
-            error: true,
-            helperText: "Post must not be empty.",
-          })}
+          onChange={(e) =>
+            setPostText(() => {
+              setUiState({ ...uiState, userInputPost: true });
+              return e.target.value;
+            })
+          }
+          {...(postText.length == 0 &&
+            uiState.userInputPost && {
+              error: true,
+              helperText: "Post must not be empty.",
+            })}
         />
         <Button
           variant="contained"
@@ -140,19 +244,21 @@ export const MainScreen = () => {
               createdAt={post.createdAt}
               content={post.content}
               likesCount={post.likesCount}
+              liked={post?.liked}
+              handleLike={handleLike}
+              handleUnlike={handleUnlike}
+              id={post.id}
             />
           </Box>
         ))
       ) : (
         <Box>
-
-        <Alert 
-                    severity="warning"
-                    sx={{ width: "80%", margin: "0 auto"}}>
-          No posts yet.
-        </Alert>
+          <Alert severity="warning" sx={{ width: "80%", margin: "0 auto" }}>
+            No posts yet.
+          </Alert>
         </Box>
       )}
+      {/* <Snackbar open={open} setOpen={setOpen} message="Post published successfully!" severity={"success"} /> */}
       <Stack spacing={2} sx={{ width: "100%" }}>
         <Snackbar
           open={open}
