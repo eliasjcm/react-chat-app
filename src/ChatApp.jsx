@@ -70,7 +70,7 @@ export const ChatApp = () => {
 
   const [chatsListState, setChatsListState] = useState(
     // contextStructure.chatsList
-    []
+    contextStructure.chatsList
   );
 
   const [loginState, setLoginState] = useState({

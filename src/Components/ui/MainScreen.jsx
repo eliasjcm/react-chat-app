@@ -119,7 +119,7 @@ export const MainScreen = () => {
       const response = post.data;
 
       if (post.status === 200) {
-        console.log("like")
+        console.log("like");
         setPostsListState(
           postsListState.map((post) => {
             if (post.id === postId) {
@@ -152,7 +152,7 @@ export const MainScreen = () => {
 
       const response = post.data;
       if (post.status === 200) {
-        console.log("unlike")
+        console.log("unlike");
         setPostsListState(
           postsListState.map((post) => {
             if (post.id === postId) {
@@ -170,6 +170,7 @@ export const MainScreen = () => {
   };
 
   const navigate = useNavigate();
+
   return (
     <div
       style={{
@@ -178,7 +179,8 @@ export const MainScreen = () => {
         padding: "0 2vw",
       }}
     >
-      {/* <div>Welcome {userState.username}</div> */}
+
+      <div>Welcome @{userState.username}</div>
       <Box
         sx={{
           backgroundColor: "rgba(200, 255, 255, 0.5)",
@@ -229,7 +231,7 @@ export const MainScreen = () => {
       </Box>
 
       <Typography variant="h5" marginTop={5} marginBottom={3}>
-        My Posts
+        Posts
       </Typography>
 
       {ui === "loading" ? (

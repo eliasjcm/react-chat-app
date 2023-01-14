@@ -23,7 +23,7 @@ import ImageSearchIcon from "@mui/icons-material/ImageSearch";
 import CallIcon from "@mui/icons-material/Call";
 
 import "../../styles.scss";
-import { AppContext } from "../../context/AppContext";
+import { AppContext, contextStructure } from "../../context/AppContext";
 import { useNavigate } from "react-router-dom";
 import { ChatsList } from "./ChatsList";
 import { ChatMessages } from "./ChatMessages";
@@ -124,6 +124,7 @@ export const ChatsScreen = () => {
         console.log(chatsList);
         console.log("Ya llego");
         setChatsListState(chatsList);
+        
       });
 
       socket.on("chat-info", (chatInfo) => {
@@ -158,6 +159,8 @@ export const ChatsScreen = () => {
     }
     setUiState({ state: "ready", message: "" });
   }, [socket]);
+
+
 
   useEffect(() => {
     return () => {
@@ -322,14 +325,23 @@ export const ChatsScreen = () => {
         paddingTop: "2vh",
       }}
     >
-      <Grid container direction="row">
-        <Grid item xs={12} md={3}>
+      <Grid
+        container
+        direction="row"
+        sx={{ border: "1px red solid", borderColor: "primary.dark" }} 
+      >
+        <Grid
+          item
+          xs={12}
+          md={3}
+          sx={{ borderRight: "1px solid", borderRightColor: "primary.dark" }}
+        >
           <ChatsList />
         </Grid>
         <Grid
           item
           xs={0}
-          display={{ xs: "none", md: "block" }}
+          display={{ xs: "none", md: "block",  height: "89vh", backgroundColor: "red" }}
           md={9}
           container
           direction="column"
@@ -379,19 +391,21 @@ export const ChatsScreen = () => {
             del chat {currentChatState.name} */}
           </Box>
 
-          <Box xs={9}>
+          <Box xs={9} sx={{height: "100%"}} >
             {uiState.state === "loading" ? (
               <Grid
-              container
-              justifyContent="center"
-              alignItems="center"
-              flexDirection={"column"}
-              sx={{ height: "100%" }}
-              marginTop={10}
-            >
-              <CircularProgress />
-              <Typography color={"primary"} fontSize={26}>Loading chats...</Typography>
-            </Grid>
+                container
+                justifyContent="center"
+                alignItems="center"
+                flexDirection={"column"}
+                sx={{ height: "100%" }}
+                marginTop={10}
+              >
+                <CircularProgress />
+                <Typography color={"primary"} fontSize={26}>
+                  Loading chats...
+                </Typography>
+              </Grid>
             ) : currentChatState.name === null ? (
               <Grid
                 container
@@ -401,17 +415,15 @@ export const ChatsScreen = () => {
                 sx={{ height: "100%" }}
                 marginTop={10}
               >
-                <MessageIcon color="primary" sx={{ fontSize: 100 }
-                }
-                  />
-                <Typography color={"primary"} fontSize={26}>Select a chat to start messaging</Typography>
+                <MessageIcon color="primary" sx={{ fontSize: 100 }} />
+                <Typography color={"primary"} fontSize={26}>
+                  Select a chat to start messaging
+                </Typography>
               </Grid>
             ) : (
-              <>
-                <ChatMessages
-                  
-                />
-                <Grid container sx={{ paddingTop: 2 }}>
+              <Grid container sx={{backgroundColor: "blue", height: "100%"}}>
+                <ChatMessages />
+                <Grid container sx={{ paddingTop: 2, paddingLeft: 2}}>
                   <Grid item xs={9}>
                     <TextField
                       label="Write a message"
@@ -448,7 +460,7 @@ export const ChatsScreen = () => {
                     </Button>
                   </Grid>
                 </Grid>
-              </>
+              </Grid>
             )}
           </Box>
         </Grid>

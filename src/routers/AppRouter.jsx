@@ -370,7 +370,7 @@ export const AppRouter = () => {
               sx={{ marginLeft: "auto"}}
             >
               <Link
-                to="/myProfile"
+                to={`/profile/${userState.username}`}
                 style={{
                   md: {
                     // marginLeft: "auto",
@@ -428,12 +428,13 @@ export const AppRouter = () => {
       </AppBar>
       <Routes>
         <Route path="/chats" element={<ChatsScreen />} />
+        <Route path="/chats/:id" element={<ChatsScreen />} />
         <Route path="/friends" element={<FriendsScreen />} />
         {/* <Route path="/" element={<MainScreen />} /> */}
-        <Route path="/myProfile" element={<MainScreen />} />
-        <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/myProfile" element={<Profile />} />
+        <Route path="/profile/:username" element={<Profile />} />
         <Route path="/video-call" element={<VideoCall />} />
-        <Route path="*" element={<FriendsScreen />} />
+        <Route path="*" element={<MainScreen />} />
       </Routes>
       <Backdrop
         sx={{ color: "#fff", zIndex: 5 }}

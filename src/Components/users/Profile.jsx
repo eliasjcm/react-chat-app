@@ -2,6 +2,7 @@ import {
   Alert,
   Avatar,
   Button,
+  CircularProgress,
   Divider,
   Grid,
   LinearProgress,
@@ -24,11 +25,12 @@ import { AppContext } from "../../context/AppContext";
 import { deepOrange } from "@mui/material/colors";
 import { Post } from "../posts/Post";
 import { HOSTNAME } from "../../utils";
+import { SnackbarMsg } from "../ui/Snackbar";
+import axios from "axios";
+import ErrorIcon from "@mui/icons-material/Error";
+import { PostsList } from "../posts/PostsList";
 
 export const Profile = () => {
-  // get id from path
-  const id = useParams()?.id;
-
   const [ui, setUi] = useState("loading");
   const {
     userState,
@@ -36,15 +38,49 @@ export const Profile = () => {
     setPostListState,
     decodedToken,
     setPostsListState,
+    uiState,
+    setUiState,
   } = useContext(AppContext);
   const [postText, setPostText] = useState("");
 
   const [open, setOpen] = React.useState(false);
+  const [profileState, setProfileState] = useState({});
 
   const handleCreatePost = () => {
-    console.log(postText);
-    setOpen(true);
-    setPostText("");
+    (async () => {
+      // const request = await fetch(`${HOSTNAME}/posts/${userState.id}}`, {
+      //   headers: {
+      //     authorization: `Bearer ${localStorage.getItem("token")}`,
+      //   },
+      // });
+      const post = await axios.post(
+        `${HOSTNAME}/posts/create`,
+        {
+          content: postText,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      console.log(post);
+      const response = post.data;
+
+      if (post.status === 200) {
+        setOpen(true);
+        setPostText("");
+      } else {
+        alert(response.error);
+      }
+
+      // if (post.error) {
+      //   alert(response.error);
+      // } else {
+      //   setOpen(true);
+      //   setPostText("");
+      // }
+    })();
   };
 
   const handleClose = (event, reason) => {
@@ -55,68 +91,362 @@ export const Profile = () => {
     setOpen(false);
   };
 
+  const { username } = useParams();
+
   useEffect(() => {
     (async () => {
-      // const handleFindFriends = async (e) => {
-      // console.log("Asking for a friend");
-      // e.preventDefault();
-      // console.log("USERSTATE", decodedToken);
-      const request = await fetch(`${HOSTNAME}/posts/${id}}`, {
+      if (!username) {
+        // TODO: Handle no username given
+        setProfileState(null);
+        return;
+      }
+      const profileInfoReq = await fetch(
+        `${HOSTNAME}/users/profile-info/${username}`,
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      const profileInfoRes = await profileInfoReq.json();
+      console.log(profileInfoRes);
+      console.log("ERROR: ", profileInfoReq.ok);
+      if (!profileInfoReq.ok) {
+        setProfileState(null);
+        setUi("loaded");
+        return;
+      } else {
+        setProfileState(profileInfoRes);
+      }
+      const postsReq = await fetch(`${HOSTNAME}/posts/${profileInfoRes.id}}`, {
         headers: {
           authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
       // console.log(request);
-      const response = await request.json();
-      setPostsListState(response);
-      // console.log(response);
-      // const friendsRes = await request.json();
-      // console.log(friendsRes);
-      // setUsersListState(friendsRes);
-      // setScreenState({ ...screenState, inSearch: true });
-      // };
-      // const request = await fetch(`${HOSTNAME}/posts/` )
+      const postsRes = await postsReq.json();
+      setPostsListState(postsRes);
+
       setUi("loaded");
+      setUiState({ ...uiState, userInputPost: false });
     })();
-  }, []);
+  }, [username]);
+
+  const handleFollow = () => {
+    const { id: otherUserId } = profileState;
+
+    (async () => {
+      // use axios to make a post request to the follow-system/follow endpoint
+      // pass otherUserId in the body
+      const follow = await axios.post(
+        `${HOSTNAME}/follow-system/follow`,
+        {
+          otherUserId,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const response = follow.data;
+
+      if (follow.status === 200) {
+        setProfileState({
+          ...profileState,
+          isBeingFollowedByMe: true,
+          followersCount: profileState.followersCount + 1,
+        });
+      } else {
+        alert(response.error);
+      }
+    })();
+  };
+
+  const handleUnfollow = () => {
+    const { id: otherUserId } = profileState;
+
+    (async () => {
+      // use axios to make a post request to the follow-system/unfollow endpoint
+      // pass otherUserId in the body
+      const unfollow = await axios.post(
+        `${HOSTNAME}/follow-system/unfollow`,
+        {
+          otherUserId,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const response = unfollow.data;
+
+      if (unfollow.status === 200) {
+        setProfileState({
+          ...profileState,
+          isBeingFollowedByMe: false,
+          followersCount: profileState.followersCount - 1,
+        });
+      } else {
+        alert(response.error);
+      }
+    })();
+  };
 
   const navigate = useNavigate();
+
   return (
     <div
       style={{
         backgroundColor: "#fafbfc",
-        minHeight: "90vh",
+        minHeight: "88vh",
         padding: "0 2vw",
       }}
     >
-      {/* <div>Welcome {userState.username}</div> */}
-
-      <Typography variant="h5" marginTop={5} marginBottom={3}>
-        Posts
-      </Typography>
-
       {ui === "loading" ? (
-        <Box sx={{ width: "80%", margin: "0 auto" }}>
-          <LinearProgress />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            height: "88vh",
+            alignItems: "center",
+            flexDirection: "column",
+          }}
+        >
+          <CircularProgress size={60} />
+          <Typography mt={7} fontSize={30}>
+            Loading Profile...
+          </Typography>
         </Box>
-      ) : postsListState.length > 0 ? (
-        postsListState.map((post) => (
-          <Box marginTop={3} key={post.id}>
-            <Post
-              publisher={post.publisher}
-              createdAt={post.createdAt}
-              content={post.content}
-              likesCount={post.likesCount}
-            />
-          </Box>
-        ))
+      ) : profileState == null ? (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            height: "88vh",
+            alignItems: "center",
+            flexDirection: "column",
+          }}
+        >
+          <ErrorIcon sx={{ fontSize: 100, color: "primary.dark" }} />
+          <Typography mt={7} fontSize={30}>
+            User not found
+          </Typography>
+        </Box>
       ) : (
-        <Box>
-          <Alert severity="warning" sx={{ width: "80%", margin: "0 auto" }}>
-            No posts yet.
-          </Alert>
-        </Box>
+        <>
+          <Box>
+            <Grid
+              container
+              display={"flex"}
+              direction={"row"}
+              wrap={"nowrap"}
+              alignContent={"center"}
+              alignItems={"center"}
+              mt={5}
+            >
+              <Grid item>
+                <Avatar
+                  sx={{
+                    bgcolor: deepOrange[500],
+                    width: "150px",
+                    height: "150px",
+                    marginRight: 2,
+                    fontSize: 50,
+                  }}
+                >
+                  P
+                </Avatar>
+              </Grid>
+              <Grid item container direction={"row"}>
+                <Grid item container>
+                  <Grid item>
+                    <Typography variant={"h5"} fontWeight="bold">
+                      {profileState.name}
+                    </Typography>
+                  </Grid>
+                  <Grid item container alignItems={"center"}>
+                    <Typography variant={"h6"}>
+                      @{profileState.username}
+                    </Typography>
+                    {profileState.isMyFollower === 1 && (
+                      <Grid
+                        item
+                        sx={{
+                          backgroundColor: "rgba(06, 42, 78, 0.71)",
+                          borderRadius: 2,
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                        ml={2}
+                      >
+                        <Typography
+                          ml={1}
+                          mr={1}
+                          color="white"
+                          fontWeight={"bold"}
+                          fontSize={14}
+                          mt={0.5}
+                          mb={0.5}
+                        >
+                          Follows You!
+                        </Typography>
+                      </Grid>
+                    )}
+
+                    {profileState.id !== userState.id && (
+                      <Grid
+                        item
+                        container
+                        direction={"row"}
+                        justifyContent={"flex-end"}
+                        alignItems={"center"}
+                        sx={{ width: "initial", marginLeft: "auto" }}
+                      >
+                        {profileState.isBeingFollowedByMe ? (
+                          <Grid item ml={3}>
+                            {/* Follow button */}
+                            <Button
+                              variant="contained"
+                              onClick={handleUnfollow}
+                              color={"error"}
+                            >
+                              Unfollow
+                            </Button>
+                          </Grid>
+                        ) : (
+                          <Grid item ml={3}>
+                            {/* Follow button */}
+                            <Button variant="contained" onClick={handleFollow}>
+                              Follow
+                            </Button>
+                          </Grid>
+                        )}
+                        <Grid item ml={3}>
+                          {/* Follow button */}
+                          <Button variant="contained">Send Message</Button>
+                        </Grid>
+                      </Grid>
+                    )}
+                  </Grid>
+                </Grid>
+                <Grid
+                  item
+                  container
+                  direction={"row"}
+                  sx={{
+                    flexWrap: "nowrap",
+                  }}
+                  mt={2}
+                >
+                  <Grid item container ml={0.5} sx={{ width: "initial" }}>
+                    <Typography
+                      fontSize={16}
+                      color={"primary.dark"}
+                      fontWeight={"bold"}
+                    >
+                      {profileState.postsCount}
+                    </Typography>
+                    <Typography fontSize={16} ml={1.5} fontWeight={"bold"}>
+                      posts
+                    </Typography>
+                  </Grid>
+                  <Grid
+                    item
+                    container
+                    direction={"row"}
+                    ml={2}
+                    sx={{ width: "initial" }}
+                  >
+                    <Typography
+                      fontSize={16}
+                      color={"primary.dark"}
+                      fontWeight={"bold"}
+                    >
+                      {profileState.followersCount}
+                    </Typography>
+                    <Typography fontSize={16} ml={1.5} fontWeight={"bold"}>
+                      followers
+                    </Typography>
+                  </Grid>
+                  <Grid item container ml={2} sx={{ width: "initial" }}>
+                    <Typography
+                      fontSize={16}
+                      color={"primary.dark"}
+                      fontWeight={"bold"}
+                    >
+                      {profileState.followingCount}
+                    </Typography>
+                    <Typography fontSize={16} ml={1.5} fontWeight={"bold"}>
+                      following
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Box>
+          {/* <div>Welcome {userState.username}</div> */}
+          {/* <Box
+        sx={{
+          backgroundColor: "rgba(200, 255, 255, 0.5)",
+          display: "flex",
+          alignItems: "center",
+          padding: "10px 15px",
+          width: "70%",
+          margin: "0 auto",
+          marginTop: 5,
+        }}
+      >
+        <Avatar
+          sx={{
+            bgcolor: deepOrange[500],
+            width: "42px",
+            height: "42px",
+            marginRight: 2,
+          }}
+        >
+          {userState?.username && userState.username[0]}
+        </Avatar>
+        <TextField
+          variant="standard"
+          placeholder="What's in your mind?"
+          multiline
+          InputProps={{ disableUnderline: true }}
+          sx={{ width: "50vw" }}
+          value={postText}
+          onChange={(e) =>
+            setPostText(() => {
+              setUiState({ ...uiState, userInputPost: true });
+              return e.target.value;
+            })
+          }
+          {...(postText.length == 0 &&
+            uiState.userInputPost && {
+              error: true,
+              helperText: "Post must not be empty.",
+            })}
+        />
+        <Button
+          variant="contained"
+          sx={{ marginLeft: "auto" }}
+          onClick={handleCreatePost}
+        >
+          Post it!
+        </Button>
+      </Box> */}
+
+          <Typography variant="h5" marginTop={5} marginBottom={3}>
+            Posts
+          </Typography>
+          <PostsList />
+        </>
       )}
+
+      {/* <Snackbar open={open} setOpen={setOpen} message="Post published successfully!" severity={"success"} /> */}
       <Stack spacing={2} sx={{ width: "100%" }}>
         <Snackbar
           open={open}
