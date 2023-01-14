@@ -12,9 +12,10 @@ export const ChatMessages = () => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        maxHeight: "70vh",
+        // maxHeight: "70vh",
+        height: "100%",
         overflowY: "auto",
-        width: "100%",
+        // width: "100%",
       }}
     >
       {currentChatState.chatMessages.map((msg, idx) => (

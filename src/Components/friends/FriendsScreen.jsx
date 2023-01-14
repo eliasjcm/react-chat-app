@@ -127,7 +127,7 @@ export const FriendsScreen = () => {
       {!screenState.inSearch && (
         <>
           <Typography variant="h4" marginTop={10} marginBottom={4}>
-            Your Friends
+            Following
           </Typography>
           {uiState.state === "loading" ? (
             <Loading />
@@ -137,6 +137,8 @@ export const FriendsScreen = () => {
             <Alert severity="warning">You have no friends!</Alert>
           )}
         </>
+
+        
       )}
     </div>
   );

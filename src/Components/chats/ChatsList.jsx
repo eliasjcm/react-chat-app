@@ -24,9 +24,7 @@ export const ChatsList = () => {
   const navigate = useNavigate();
   const handlePickChat = (chatId) => {
     if (chatId !== currentChatState.id) {
-      console.log(`Emitting join-chat from chatsList with chat id ${chatId}`);
-      socket.emit("leave-chat", currentChatState.id);
-      socket.emit("join-chat", chatId);
+
       navigate(`/chats/${chatId}`);
     }
     // }

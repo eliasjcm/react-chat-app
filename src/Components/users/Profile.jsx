@@ -40,48 +40,13 @@ export const Profile = () => {
     setPostsListState,
     uiState,
     setUiState,
+    currentChatState,
+    setCurrentChatState,
   } = useContext(AppContext);
   const [postText, setPostText] = useState("");
 
   const [open, setOpen] = React.useState(false);
   const [profileState, setProfileState] = useState({});
-
-  const handleCreatePost = () => {
-    (async () => {
-      // const request = await fetch(`${HOSTNAME}/posts/${userState.id}}`, {
-      //   headers: {
-      //     authorization: `Bearer ${localStorage.getItem("token")}`,
-      //   },
-      // });
-      const post = await axios.post(
-        `${HOSTNAME}/posts/create`,
-        {
-          content: postText,
-        },
-        {
-          headers: {
-            authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      console.log(post);
-      const response = post.data;
-
-      if (post.status === 200) {
-        setOpen(true);
-        setPostText("");
-      } else {
-        alert(response.error);
-      }
-
-      // if (post.error) {
-      //   alert(response.error);
-      // } else {
-      //   setOpen(true);
-      //   setPostText("");
-      // }
-    })();
-  };
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -197,6 +162,46 @@ export const Profile = () => {
   };
 
   const navigate = useNavigate();
+
+  const handleSendMessage = () => {
+    // use axios to make a get request to the chats/findChatByUserId?userId=? endpoint
+
+    const { id: otherUserId } = profileState;
+
+    (async () => {
+      try {
+        const chat = await axios.get(
+          `${HOSTNAME}/chats/findChatByUserId?userId=${otherUserId}`,
+          {
+            headers: {
+              authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        if (chat.status === 200) {
+          const response = chat.data;
+          console.log("ChatID response:", response);
+          navigate(`/chats/${response.chatId}`);
+        } else {
+          setCurrentChatState({
+            ...currentChatState,
+            newChat: true,
+            otherUsername: profileState.username,
+          });
+          navigate(`/chats/`);
+        }
+      } catch (error) {
+        console.log(error);
+        setCurrentChatState({
+          ...currentChatState,
+          newChat: true,
+          otherUsername: profileState.username,
+        });
+        navigate(`/chats/`);
+      }
+    })();
+  };
 
   return (
     <div
@@ -328,7 +333,12 @@ export const Profile = () => {
                         )}
                         <Grid item ml={3}>
                           {/* Follow button */}
-                          <Button variant="contained">Send Message</Button>
+                          <Button
+                            variant="contained"
+                            onClick={handleSendMessage}
+                          >
+                            Send Message
+                          </Button>
                         </Grid>
                       </Grid>
                     )}

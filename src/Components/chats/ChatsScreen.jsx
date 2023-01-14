@@ -24,7 +24,7 @@ import CallIcon from "@mui/icons-material/Call";
 
 import "../../styles.scss";
 import { AppContext, contextStructure } from "../../context/AppContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChatsList } from "./ChatsList";
 import { ChatMessages } from "./ChatMessages";
 import { deepOrange } from "@mui/material/colors";
@@ -113,6 +113,15 @@ export const ChatsScreen = () => {
 
   /////////////////////////////
 
+  const { id: chatId } = useParams();
+
+  useEffect(() => {
+    if (!chatId || !socket) return;
+    console.log(`Emitting join-chat from chatsList with chat id ${chatId}`);
+    socket.emit("leave-chat", currentChatState.id);
+    socket.emit("join-chat", chatId);
+  }, [chatId]);
+
   useEffect(() => {
     setUiState({ state: "loading", message: "Loading chats..." });
     if (socket) {
@@ -124,7 +133,6 @@ export const ChatsScreen = () => {
         console.log(chatsList);
         console.log("Ya llego");
         setChatsListState(chatsList);
-        
       });
 
       socket.on("chat-info", (chatInfo) => {
@@ -156,11 +164,25 @@ export const ChatsScreen = () => {
         console.log("MENSAJE RECIBIDO");
         socket.emit("chats-list", 5);
       });
+
+      // if chatId is not null, then we should join the chat
+      if (chatId || chatId === null) {
+        if (currentChatState?.newChat) {
+          setCurrentChatState({
+            newMessage: "",
+            chatMessages: [],
+            newChat: false,
+            id: -1,
+            name: currentChatState.otherUsername,
+            newMessage: "",
+          });
+        } else {
+          socket.emit("join-chat", chatId);
+        }
+      }
     }
     setUiState({ state: "ready", message: "" });
   }, [socket]);
-
-
 
   useEffect(() => {
     return () => {
@@ -170,13 +192,6 @@ export const ChatsScreen = () => {
       }
     };
   }, [timeoutID]);
-
-  useEffect(() => {
-    console.log(
-      "-------------------------------------- OTHER USER CHANGED NOW IT IS ",
-      otherUser
-    );
-  }, [otherUser]);
 
   useEffect(() => {
     // Scroll to the bottom of the screen every time a new chat is loaded
@@ -328,7 +343,7 @@ export const ChatsScreen = () => {
       <Grid
         container
         direction="row"
-        sx={{ border: "1px red solid", borderColor: "primary.dark" }} 
+        sx={{ border: "1px red solid", borderColor: "primary.dark" }}
       >
         <Grid
           item
@@ -341,7 +356,11 @@ export const ChatsScreen = () => {
         <Grid
           item
           xs={0}
-          display={{ xs: "none", md: "block",  height: "89vh", backgroundColor: "red" }}
+          display={{
+            xs: "none",
+            md: "block",
+            height: "89vh",
+          }}
           md={9}
           container
           direction="column"
@@ -350,7 +369,7 @@ export const ChatsScreen = () => {
             xs={3}
             sx={{
               // width: 300,
-              height: 80,
+              // height: 80,
               backgroundColor: "primary.dark",
               color: "white",
               // '&:hover': {
@@ -391,7 +410,7 @@ export const ChatsScreen = () => {
             del chat {currentChatState.name} */}
           </Box>
 
-          <Box xs={9} sx={{height: "100%"}} >
+          <Box xs={9} sx={{ height: "100%" }}>
             {uiState.state === "loading" ? (
               <Grid
                 container
@@ -421,9 +440,27 @@ export const ChatsScreen = () => {
                 </Typography>
               </Grid>
             ) : (
-              <Grid container sx={{backgroundColor: "blue", height: "100%"}}>
-                <ChatMessages />
-                <Grid container sx={{ paddingTop: 2, paddingLeft: 2}}>
+              <Grid
+                container
+                sx={{
+                  // backgroundColor: "yellow",
+                  flexDirection: "column",
+                  height: "100%",
+                  maxHeight: "100%",
+                }}
+              >
+                <Grid
+                  xs={7}
+                  item
+                  sx={{
+                    
+                    overflowY: "auto",
+                    // backgroundColor: "blue",
+                  }}
+                >
+                  <ChatMessages />
+                </Grid>
+                <Grid container item sx={{ backgroundColor: "red" }} xs={2}>
                   <Grid item xs={9}>
                     <TextField
                       label="Write a message"
