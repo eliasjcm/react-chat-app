@@ -14,6 +14,7 @@ export const ChatMessages = () => {
         flexDirection: "column",
         // maxHeight: "70vh",
         height: "100%",
+        maxHeight: "100%",
         overflowY: "auto",
         // width: "100%",
       }}

@@ -159,6 +159,16 @@ export const ChatApp = () => {
     }
   }, [currentToken]);
 
+   useEffect(() => {
+      
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    }
+  }, [])
+  
+
   const [callState, setCallState] = useState(null);
 
   return (

@@ -1,4 +1,4 @@
-import { blue, deepOrange } from "@mui/material/colors";
+import { blue, deepOrange, red } from "@mui/material/colors";
 import {
   Avatar,
   List,
@@ -12,7 +12,7 @@ import React, { useContext } from "react";
 import { AppContext } from "../../context/AppContext";
 import { useNavigate } from "react-router-dom";
 
-export const ChatsList = () => {
+export const ChatsListSection = () => {
   const {
     chatsListState,
     setChatsListState,
@@ -32,14 +32,14 @@ export const ChatsList = () => {
 
   return (
     <Box>
-      <Box sx={{ height: 80, bgcolor: blue[700], display: "flex" }} pl={2}>
+      <Box sx={{ height: 80, bgcolor: "primary.dark", display: "flex" }} pl={2}>
         <Typography sx={{ color: "white" }} fontSize={20}>
           Chats
         </Typography>
       </Box>
       <List
         className="chat-list"
-        sx={{ padding: 0, maxHeight: "80vh", overflowY: "auto" }}
+        sx={{ padding: 0, overflowY: "auto" }}
       >
         {chatsListState.map((chat) => (
           <Box key={chat.id}>

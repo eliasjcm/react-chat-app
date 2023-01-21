@@ -1,15 +1,7 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
-  Box,
   Button,
   Grid,
-  TextField,
-  ListItem,
-  Avatar,
-  ListItemAvatar,
-  ListItemText,
-  IconButton,
-  List,
   Backdrop,
   CircularProgress,
   Typography,
@@ -17,19 +9,13 @@ import {
   DialogTitle,
   DialogActions,
 } from "@mui/material";
-import Peer from "simple-peer";
-import MessageIcon from "@mui/icons-material/Message";
-import ImageSearchIcon from "@mui/icons-material/ImageSearch";
-import CallIcon from "@mui/icons-material/Call";
 
 import "../../styles.scss";
-import { AppContext, contextStructure } from "../../context/AppContext";
-import { useNavigate, useParams } from "react-router-dom";
-import { ChatsList } from "./ChatsList";
-import { ChatMessages } from "./ChatMessages";
-import { deepOrange } from "@mui/material/colors";
-import { CALL_DEVELOPMENT } from "../../utils";
-import { closeCallStream } from "../../helpers/calls";
+import { AppContext } from "../../context/AppContext";
+import { useParams } from "react-router-dom";
+import { ChatsListSection } from "./ChatsListSection";
+
+import { ChatsMessagesSection } from "./ChatsMessagesSection";
 
 const ENDPOINT = "http://192.168.100.47:5000";
 
@@ -71,25 +57,11 @@ export const ChatsScreen = () => {
     currentChatState,
     setCurrentChatState,
     socket,
-    setSocket,
     refChatBox,
-    userState,
-    stream,
-    setStream,
-    otherUser,
-    setOtherUser,
-    setOtherUserStream,
-    uiState,
     setUiState,
   } = useContext(AppContext);
 
   // simple-peer
-
-  const userVideo = useRef();
-
-  const navigate = useNavigate();
-
-  const [isCallingActive, setIsCallingActive] = useState(false);
 
   const handleCloseNotAnswered = () => {
     setIsCallingActive(false);
@@ -103,6 +75,8 @@ export const ChatsScreen = () => {
     }
     setCallStatus("NONE");
   };
+
+  const [isCallingActive, setIsCallingActive] = useState(false);
 
   // NONE, FAILED
   const [callStatus, setCallStatus] = useState("NONE");
@@ -118,7 +92,7 @@ export const ChatsScreen = () => {
   useEffect(() => {
     if (!chatId || !socket) return;
     console.log(`Emitting join-chat from chatsList with chat id ${chatId}`);
-    socket.emit("leave-chat", currentChatState.id);
+    socket.emit("leave-room", currentChatState.id);
     socket.emit("join-chat", chatId);
   }, [chatId]);
 
@@ -148,20 +122,36 @@ export const ChatsScreen = () => {
       });
 
       socket.on("new-message", (newMessage) => {
+        console.log("MENSAJE RECIBIDO");
+        const messageIdInCurrentChatState =
+          currentChatState.chatMessages.findIndex(
+            (msg) => msg.id === newMessage.id
+          );
+        if (messageIdInCurrentChatState !== -1) return;
+
         setCurrentChatState((currentChatState) => {
           let newMessages = addDateToList(
             [newMessage],
             currentChatState.chatMessages
           );
+          let newChatMessagesList = [
+            ...currentChatState.chatMessages,
+            ...newMessages,
+          ];
+          // remove any duplicate messages id
+          // newChatMessagesList = newChatMessagesList.filter(
+          //   (msg, index, self) =>
+          //     index === self.findIndex((t) => t?.id === msg?.id)
+          // );
+
           // console.log("FROM STATE", currentChatState);
           return {
             ...currentChatState,
-            chatMessages: [...currentChatState.chatMessages, ...newMessages],
+            chatMessages: newChatMessagesList,
           };
         });
 
         console.log(currentChatState);
-        console.log("MENSAJE RECIBIDO");
         socket.emit("chats-list", 5);
       });
 
@@ -174,10 +164,24 @@ export const ChatsScreen = () => {
             newChat: false,
             id: -1,
             name: currentChatState.otherUsername,
+            otherUsername: currentChatState.otherUsername,
             newMessage: "",
           });
         } else {
+          console.log("Join chat");
           socket.emit("join-chat", chatId);
+        }
+      } else {
+        if (currentChatState?.newChat) {
+          setCurrentChatState({
+            newMessage: "",
+            chatMessages: [],
+            newChat: false,
+            id: -1,
+            name: currentChatState.otherUsername,
+            otherUsername: currentChatState.otherUsername,
+            newMessage: "",
+          });
         }
       }
     }
@@ -202,132 +206,21 @@ export const ChatsScreen = () => {
     // console.log(refChatBox.current.scrollTop);
   }, [currentChatState]);
 
-  const handleSendMessage = (e) => {
-    if (currentChatState.newMessage === "") return;
-    console.log(currentChatState.newMessage);
-    socket.emit("send-message", {
-      content: currentChatState.newMessage,
-      senderId: userState.id,
-      chatId: currentChatState.id,
-    });
-    setCurrentChatState({
-      ...currentChatState,
-      newMessage: "",
-    });
-  };
-
-  const handleStartCall = async () => {
-    if (!CALL_DEVELOPMENT) {
-      console.log("STARTING CALL ");
-      try {
-        setIsCallingActive(true);
-
-        let navigatorStream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
-        console.log(navigatorStream);
-        setStream(navigatorStream);
-        if (userVideo.current) {
-          userVideo.current.srcObject = navigatorStream;
+  useEffect(() => {
+    return () => {
+      setCurrentChatState((currentChatState) => {
+        console.log(
+          `Unmount ChatScreen where currentChatState.name is ${currentChatState.name} and currentChatState.id is ${currentChatState.id}`
+        );
+        if (currentChatState.name !== null || currentChatState.id !== -1) {
+          socket.emit("leave-room", currentChatState.id);
+          console.log("Leave room emitted");
         }
 
-        setTimeoutID(
-          setTimeout(() => {
-            console.log("TIMEOUT ACTIVE");
-            console.log("CURRENT CALL STATE", callStatus);
-            if (callStatus !== "CONNECTED") {
-              setOtherUser((otherUser) => {
-                console.log(
-                  "CALL EXPIRED, FROM: ",
-                  userState,
-                  "TO: ",
-                  otherUser
-                );
-
-                socket.emit("callExpired", { from: userState, to: otherUser });
-                return otherUser;
-              });
-
-              setCallStatus("FAILED");
-              setIsCallingActive(false);
-              try {
-                closeCallStream(stream);
-              } catch (err) {
-                console.log(err);
-              }
-              setStream(null);
-              setOtherUserStream(null);
-            }
-          }, 11000)
-        );
-
-        const peer = new Peer({
-          initiator: true,
-          trickle: false,
-          stream: navigatorStream,
-        });
-
-        peer.on("signal", (data) => {
-          socket.emit("callUser", {
-            chatId: currentChatState.id,
-            signalData: data,
-            from: userState,
-          });
-        });
-
-        peer.on("stream", (partnerStream) => {
-          // if (partnerVideo.current) {
-          //   partnerVideo.current.srcObject = stream;
-          // }
-          console.log("SETTING OTHER USER STREAM", otherUser);
-          setOtherUserStream(partnerStream);
-          console.log("stream", navigatorStream, "otro stream", partnerStream);
-          console.log("-----------------> stream");
-          setIsCallingActive(false);
-          setCallStatus("CONNECTED");
-          navigate("/video-call");
-        });
-
-        socket.on("callAccepted", (signal) => {
-          // setCallAccepted(true);
-          peer.signal(signal);
-          console.log("LLAMADA ACEPTADA");
-          console.log("-----------------> callAccepted");
-        });
-
-        socket.on("callReceiver", (receiver) => {
-          console.log("CALL RECEIVER ->", receiver);
-          setOtherUser(receiver);
-        });
-
-        socket.on("callDeclined", () => {
-          console.log("LLAMADA RECHAZADA");
-          setIsCallingActive(false);
-          setCallStatus("DECLINED");
-          setStream(null);
-          setOtherUserStream(null);
-          // navigate("/chats");
-
-          // setCallStatus("FAILED");
-          //     setIsCallingActive(false);
-          //     try {
-          //       closeCallStream(stream);
-          //     } catch (err) {
-          //       console.log(err);
-          //     }
-          //     setStream(null);
-          //     setOtherUserStream(null);
-        });
-      } catch (err) {
-        alert(err);
-      }
-    } else {
-      // go to /video-call/:chatId
-      navigate(`/video-call`);
-    }
-  };
-
+        return { ...currentChatState, name: null };
+      });
+    };
+  }, []);
   return (
     <Grid
       container
@@ -343,7 +236,12 @@ export const ChatsScreen = () => {
       <Grid
         container
         direction="row"
-        sx={{ border: "1px red solid", borderColor: "primary.dark" }}
+        sx={{
+          border: "1px red solid",
+          borderColor: "primary.dark",
+          height: "800px",
+          maxHeight: "800px",
+        }}
       >
         <Grid
           item
@@ -351,155 +249,28 @@ export const ChatsScreen = () => {
           md={3}
           sx={{ borderRight: "1px solid", borderRightColor: "primary.dark" }}
         >
-          <ChatsList />
+          <ChatsListSection />
         </Grid>
         <Grid
           item
-          xs={0}
-          display={{
-            xs: "none",
-            md: "block",
-            height: "89vh",
-          }}
+          // xs={0}
+          // display={{
+          //   xs: "none",
+          //   md: "block",
+          // }}
           md={9}
           container
           direction="column"
+          // sx={{backgroundColor: "primary.light"}}
         >
-          <Box
-            xs={3}
-            sx={{
-              // width: 300,
-              // height: 80,
-              backgroundColor: "primary.dark",
-              color: "white",
-              // '&:hover': {
-              //   backgroundColor: 'primary.main',
-              //   opacity: [0.9, 0.8, 0.7],
-            }}
-          >
-            {/* Icons and information of current chat */}
-            {currentChatState.name !== null && (
-              <List sx={{ display: "flex", margin: "auto 0", height: "100%" }}>
-                <ListItem>
-                  <ListItemAvatar>
-                    <Avatar sx={{ bgcolor: deepOrange[500] }}>
-                      {currentChatState.name[0]}
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText>{currentChatState.name}</ListItemText>
-                  <IconButton
-                    // edge="end"
-                    aria-label="delete"
-                    sx={{ color: "white" }}
-                    mr={5}
-                    onClick={handleStartCall}
-                  >
-                    <CallIcon />
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    sx={{ color: "white" }}
-                  >
-                    <ImageSearchIcon />
-                  </IconButton>
-                </ListItem>
-              </List>
-            )}
-            {/* Usuario actual: {`${userState.username} - ${userState.id}`}. Nombre
-            del chat {currentChatState.name} */}
-          </Box>
-
-          <Box xs={9} sx={{ height: "100%" }}>
-            {uiState.state === "loading" ? (
-              <Grid
-                container
-                justifyContent="center"
-                alignItems="center"
-                flexDirection={"column"}
-                sx={{ height: "100%" }}
-                marginTop={10}
-              >
-                <CircularProgress />
-                <Typography color={"primary"} fontSize={26}>
-                  Loading chats...
-                </Typography>
-              </Grid>
-            ) : currentChatState.name === null ? (
-              <Grid
-                container
-                justifyContent="center"
-                alignItems="center"
-                flexDirection={"column"}
-                sx={{ height: "100%" }}
-                marginTop={10}
-              >
-                <MessageIcon color="primary" sx={{ fontSize: 100 }} />
-                <Typography color={"primary"} fontSize={26}>
-                  Select a chat to start messaging
-                </Typography>
-              </Grid>
-            ) : (
-              <Grid
-                container
-                sx={{
-                  // backgroundColor: "yellow",
-                  flexDirection: "column",
-                  height: "100%",
-                  maxHeight: "100%",
-                }}
-              >
-                <Grid
-                  xs={7}
-                  item
-                  sx={{
-                    
-                    overflowY: "auto",
-                    // backgroundColor: "blue",
-                  }}
-                >
-                  <ChatMessages />
-                </Grid>
-                <Grid container item sx={{ backgroundColor: "red" }} xs={2}>
-                  <Grid item xs={9}>
-                    <TextField
-                      label="Write a message"
-                      variant="filled"
-                      multiline
-                      fullWidth
-                      value={currentChatState.newMessage}
-                      onChange={(e) =>
-                        setCurrentChatState({
-                          ...currentChatState,
-                          newMessage: e.target.value,
-                        })
-                      }
-                      onKeyPress={(e) => {
-                        if (e.which === 13 && !e.shiftKey) {
-                          e.preventDefault();
-                          // console.log("Envie");
-                          handleSendMessage(e);
-                        }
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Button
-                      variant={
-                        currentChatState.newMessage !== ""
-                          ? "outlined"
-                          : "disabled"
-                      }
-                      color="primary"
-                      onClick={handleSendMessage}
-                    >
-                      Send
-                    </Button>
-                  </Grid>
-                </Grid>
-              </Grid>
-            )}
-          </Box>
+          <ChatsMessagesSection
+            isCallingActive={isCallingActive}
+            setIsCallingActive={setIsCallingActive}
+            callStatus={callStatus}
+            setCallStatus={setCallStatus}
+            setTimeoutID={setTimeoutID}
+            timeoutID={timeoutID}
+          />
         </Grid>
       </Grid>
       {/* BACKDROP FOR MESSAGE: */}

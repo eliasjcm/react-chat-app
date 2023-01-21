@@ -252,6 +252,11 @@ export const Profile = () => {
               alignContent={"center"}
               alignItems={"center"}
               mt={5}
+              sx={{
+                marginLeft: "auto",
+                marginRight: "auto",
+                width: "max-content",
+              }}
             >
               <Grid item>
                 <Avatar
