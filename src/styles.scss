@@ -3,7 +3,6 @@ html {
   margin: 0;
   padding: 0;
   height: 100%;
-
 }
 
 * {
@@ -15,10 +14,10 @@ html {
   // height: 100vh; /* Fallback for browsers that do not support Custom Properties */
   // height: calc(var(--vh, 1vh) * 100);
   // height: ;
-  height: -webkit-fill-available;
+  height: fit-content;
+  min-height: 100vh; /* Fallback for browsers that do not support Custom Properties */;
   background-color: #fafbfc;
   // overflow-x: hidden;
-
 
   // overflow-y: hidden !important;
 }

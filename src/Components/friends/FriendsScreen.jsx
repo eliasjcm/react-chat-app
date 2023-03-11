@@ -19,6 +19,7 @@ import { UserCardsList } from "./UserCardsList";
 import { HOSTNAME } from "../../utils";
 import { display } from "@mui/system";
 import { Loading } from "../ui/Loading";
+import AlignItemsList from "./AlignItemsList";
 
 export const FriendsScreen = () => {
   const {
@@ -132,13 +133,23 @@ export const FriendsScreen = () => {
           {uiState.state === "loading" ? (
             <Loading />
           ) : usersListState.length > 0 ? (
-            <UserCardsList usersList={usersListState} />
+            <>
+              {/* <UserCardsList usersList={usersListState} /> */}
+              <Grid
+                container
+                justifyContent={"center"}
+                alignItems={"center"}
+                sx={{ marginTop: 5 }}
+              >
+                <Grid item>
+                  <AlignItemsList usersList={usersListState} />
+                </Grid>
+              </Grid>
+            </>
           ) : (
             <Alert severity="warning">You have no friends!</Alert>
           )}
         </>
-
-        
       )}
     </div>
   );

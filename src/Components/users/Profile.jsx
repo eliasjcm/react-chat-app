@@ -34,19 +34,16 @@ export const Profile = () => {
   const [ui, setUi] = useState("loading");
   const {
     userState,
-    postsListState,
-    setPostListState,
-    decodedToken,
     setPostsListState,
     uiState,
     setUiState,
     currentChatState,
     setCurrentChatState,
   } = useContext(AppContext);
-  const [postText, setPostText] = useState("");
 
   const [open, setOpen] = React.useState(false);
   const [profileState, setProfileState] = useState({});
+  const [currentSection, setCurrentSection] = useState("posts");
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -96,6 +93,8 @@ export const Profile = () => {
       setUiState({ ...uiState, userInputPost: false });
     })();
   }, [username]);
+
+  useEffect(() => {}, [currentChatState]);
 
   const handleFollow = () => {
     const { id: otherUserId } = profileState;
@@ -358,7 +357,21 @@ export const Profile = () => {
                   }}
                   mt={2}
                 >
-                  <Grid item container ml={0.5} sx={{ width: "initial" }}>
+                  <Grid
+                    item
+                    container
+                    ml={0.5}
+                    sx={{
+                      width: "initial",
+                      cursor: "pointer",
+                      ...(currentSection === "posts" && {
+                        borderBottom: "1px solid #1976D9",
+                      }),
+                    }}
+                    onClick={() => {
+                      setCurrentSection("posts");
+                    }}
+                  >
                     <Typography
                       fontSize={16}
                       color={"primary.dark"}
@@ -375,7 +388,16 @@ export const Profile = () => {
                     container
                     direction={"row"}
                     ml={2}
-                    sx={{ width: "initial" }}
+                    sx={{
+                      width: "initial",
+                      cursor: "pointer",
+                      ...(currentSection === "followers" && {
+                        borderBottom: "1px solid #1976D9",
+                      }),
+                    }}
+                    onClick={() => {
+                      setCurrentSection("followers");
+                    }}
                   >
                     <Typography
                       fontSize={16}
@@ -388,7 +410,21 @@ export const Profile = () => {
                       followers
                     </Typography>
                   </Grid>
-                  <Grid item container ml={2} sx={{ width: "initial" }}>
+                  <Grid
+                    item
+                    container
+                    ml={2}
+                    sx={{
+                      width: "initial",
+                      cursor: "pointer",
+                      ...(currentSection === "following" && {
+                        borderBottom: "1px solid #1976D9",
+                      }),
+                    }}
+                    onClick={() => {
+                      setCurrentSection("following");
+                    }}
+                  >
                     <Typography
                       fontSize={16}
                       color={"primary.dark"}
@@ -455,7 +491,11 @@ export const Profile = () => {
       </Box> */}
 
           <Typography variant="h5" marginTop={5} marginBottom={3}>
-            Posts
+            {currentSection === "posts"
+              ? "Posts"
+              : currentSection === "followers"
+              ? "Followers"
+              : "Following"}
           </Typography>
           <PostsList />
         </>
