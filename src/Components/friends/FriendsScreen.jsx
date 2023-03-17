@@ -19,7 +19,7 @@ import { UserCardsList } from "./UserCardsList";
 import { HOSTNAME } from "../../utils";
 import { display } from "@mui/system";
 import { Loading } from "../ui/Loading";
-import AlignItemsList from "./AlignItemsList";
+import UsersListTable from "./UsersListTable";
 
 export const FriendsScreen = () => {
   const {
@@ -30,6 +30,7 @@ export const FriendsScreen = () => {
     uiState,
     setUiState,
   } = useContext(AppContext);
+
 
   const [screenState, setScreenState] = useState({
     inSearch: false,
@@ -68,12 +69,12 @@ export const FriendsScreen = () => {
     setScreenState({ ...screenState, friendsList: friendsRes });
     return friendsRes;
   };
-  useEffect(async () => {
-    setUiState({ state: "loading" });
-    const friends = await askFriends();
-    setUsersListState(friends);
-    setUiState({ state: "ready" });
-  }, []);
+  // useEffect(async () => {
+  //   setUiState({ state: "loading" });
+  //   const friends = await askFriends();
+  //   setUsersListState(friends);
+  //   setUiState({ state: "ready" });
+  // }, []);
   return (
     <div style={{ padding: "15px" }}>
       <Grid
@@ -142,7 +143,7 @@ export const FriendsScreen = () => {
                 sx={{ marginTop: 5 }}
               >
                 <Grid item>
-                  <AlignItemsList usersList={usersListState} />
+                  <UsersListTable usersList={usersListState} />
                 </Grid>
               </Grid>
             </>

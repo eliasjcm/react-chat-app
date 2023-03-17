@@ -1,4 +1,4 @@
-import { ListItem, ListItemText } from "@mui/material";
+import { ListItem, ListItemText, Typography } from "@mui/material";
 import React, { useContext } from "react";
 import { AppContext } from "../../context/AppContext";
 
@@ -30,7 +30,11 @@ export const ChatMessage = ({ msg }) => {
     >
       <ListItemText
         sx={{ display: "flex" }}
-        primary={msg.content}
+        primary={
+          <Typography sx={{ overflowWrap: "anywhere" }}>
+            {msg.content}
+          </Typography>
+        }
         {...(msg.createdAt && {
           secondary: `${new Date(msg.createdAt)
             .getHours()

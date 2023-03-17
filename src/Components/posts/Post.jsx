@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Avatar,
   Button,
@@ -11,10 +11,19 @@ import {
   TextField,
   Typography,
   Box,
+  Modal,
+  Backdrop,
+  Dialog,
+  DialogTitle,
+  DialogActions,
 } from "@mui/material";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import { deepOrange } from "@mui/material/colors";
-import { ThumbUpOffAlt } from "@mui/icons-material";
+import { Delete, ThumbUpOffAlt, TryOutlined } from "@mui/icons-material";
+import UsersListTable from "../friends/UsersListTable";
+import UsersLikesList from "./UsersLikesList";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import { AppContext } from "../../context/AppContext";
 
 export const Post = ({
   publisher,
@@ -26,6 +35,38 @@ export const Post = ({
   handleLike,
   handleUnlike,
 }) => {
+  const { userState } = React.useContext(AppContext);
+
+  const [showLikesList, setShowLikesList] = useState(false);
+
+  const [usersList, setUsersList] = useState(null);
+
+  const [likesList, setLikesList] = useState(null);
+
+  const closeLikesList = () => {
+    setShowLikesList(false);
+  };
+
+  const openLikesList = async () => {
+    // http://localhost:5000/posts/likes/1
+
+    const response = await fetch(`http://localhost:5000/posts/likes/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    const data = await response.json();
+
+    console.log(data);
+
+    setLikesList(data);
+
+    setShowLikesList(true);
+  };
+
   return (
     <Box
       width="85%"
@@ -37,7 +78,7 @@ export const Post = ({
       }}
     >
       <Box sx={{ padding: "17px 25px" }}>
-        <ListItem disablePadding>
+        <ListItem disablePadding alignItems="center">
           <ListItemAvatar>
             <Avatar
               sx={{
@@ -56,10 +97,36 @@ export const Post = ({
             }
             secondary={createdAt}
           />
+          {/* <Button variant="outlined" color="primary" size="small">
+            Follow
+          </Button> */}
+          {publisher.id === userState.id && (
+            <Button
+              color="error"
+              // variant="outlined"
+              // size="small"
+            >
+              <DeleteForeverIcon />
+            </Button>
+          )}
         </ListItem>
-        <Typography marginTop={2}>{content}</Typography>
+        <Typography marginTop={2} sx={{ overflowWrap: "anywhere" }}>
+          {content}
+        </Typography>
         {likesCount > 0 && (
-          <Box display="flex" alignItems="center" marginTop={2}>
+          <Box
+            display="flex"
+            alignItems="center"
+            marginTop={2}
+            sx={{
+              width: "fit-content",
+              ":hover": {
+                backgroundColor: "#f5f5f5",
+                cursor: "pointer",
+              },
+            }}
+            onClick={() => openLikesList()}
+          >
             <Avatar
               // color
               sx={{ bgcolor: "#1976d2", width: "20px", height: "20px" }}
@@ -78,14 +145,64 @@ export const Post = ({
             Like
           </Button>
         ) : (
-          <Button
-            startIcon={<ThumbUpOffAlt />}
-            onClick={() => handleLike(id)}
-          >
+          <Button startIcon={<ThumbUpOffAlt />} onClick={() => handleLike(id)}>
             Like
           </Button>
         )}
       </Box>
+      {/* <Backdrop open={true} sx={{
+        backgroundColor: "red"
+      }}> */}
+      <Dialog
+        open={showLikesList}
+        onClose={closeLikesList}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        sx={{
+          "& .MuiDialog-container": {
+            "& .MuiPaper-root": {
+              width: "100%",
+              maxWidth: "80vw", // Set your width here
+            },
+          },
+        }}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          sx: {
+            // width: "100%",
+            // maxWidth: "500px",
+            backgroundColor: "white",
+            boxShadow: "rgba(0, 0, 0, 0.05) 0px 5px 15px",
+            borderRadius: "10px",
+          },
+        }}
+        BackdropProps={{
+          sx: {
+            background: "rgba(0,0,0,0.2)",
+          },
+        }}
+      >
+        <Box
+          sx={{
+            paddingLeft: 3,
+            paddingRight: 3,
+            paddingTop: 1,
+            paddingBottom: 1.5,
+          }}
+        >
+          <Typography
+            variant="h6"
+            fontWeight="bold"
+            sx={{ marginBottom: 2, marginTop: 2 }}
+          >
+            Likes
+          </Typography>
+
+          <UsersLikesList inline={true} usersList={likesList} />
+        </Box>
+      </Dialog>
+      {/* </Backdrop> */}
     </Box>
   );
 };

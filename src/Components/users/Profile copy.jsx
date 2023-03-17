@@ -54,6 +54,7 @@ export const Profile = () => {
     if (reason === "clickaway") {
       return;
     }
+
     setOpen(false);
   };
 
@@ -61,10 +62,6 @@ export const Profile = () => {
 
   useEffect(() => {
     (async () => {
-      setFollowersList(null);
-      setfollowingList(null);
-      setCurrentSection("posts");
-
       if (!username) {
         // TODO: Handle no username given
         setProfileState(null);
@@ -191,17 +188,17 @@ export const Profile = () => {
 
           setFollowersList(followersRes);
 
-          console.log("Followers loaded");
+          console.log("Followers loaded")
 
           setUi("loaded");
         })();
         break;
       case "following":
         (async () => {
-          if (followingList) {
+          setUi("loadingFollowing");
+          if (followersList) {
             return;
           }
-          setUi("loadingFollowing");
           const { id: otherUserId } = profileState;
 
           const followingReq = await fetch(
@@ -223,7 +220,7 @@ export const Profile = () => {
       default:
         break;
     }
-  }, [currentSection, followersList, profileState, followingList]);
+  }, [currentSection, profileState]);
 
   const navigate = useNavigate();
 
@@ -267,8 +264,6 @@ export const Profile = () => {
     })();
   };
 
-  // useEffect(() => {
-  // }, []
   return (
     <div
       style={{
@@ -309,7 +304,6 @@ export const Profile = () => {
         </Box>
       ) : (
         <>
-          {/* User Header */}
           <Box>
             <Grid
               container
@@ -509,7 +503,7 @@ export const Profile = () => {
               </Grid>
             </Grid>
           </Box>
-          {/* Section Title */}
+          
           <Typography variant="h5" marginTop={5} marginBottom={3}>
             {currentSection === "posts"
               ? "Posts"
@@ -517,7 +511,6 @@ export const Profile = () => {
               ? "Followers"
               : "Following"}
           </Typography>
-
           {currentSection === "posts" ? (
             <PostsList />
           ) : currentSection === "followers" ? (
@@ -539,22 +532,24 @@ export const Profile = () => {
                     </Typography>
                   </Box>
                 </Box>
-              ) : !followersList || followersList.length === 0 ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    height: "50vh",
-                    alignItems: "center",
-                    flexDirection: "column",
-                  }}
-                >
-                  <Typography fontSize={30}>
-                    No followers yet. Follow someone to see them here!
-                  </Typography>
-                </Box>
               ) : (
-                <UsersListTable usersList={followersList} />
+                !followersList || followersList.length === 0 ? (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      height: "50vh",
+                      alignItems: "center",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Typography fontSize={30}>
+                      No followers yet. Follow someone to see them here!
+                    </Typography>
+                  </Box>
+                ) : (
+                  <UsersListTable usersList={followersList} />
+                )
               )}
             </Box>
           ) : (
@@ -572,33 +567,39 @@ export const Profile = () => {
                   >
                     <CircularProgress size={60} />
                     <Typography mt={7} fontSize={30}>
+
                       Loading Following List...
                     </Typography>
                   </Box>
                 </Box>
-              ) : !followingList || followingList.length === 0 ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    height: "50vh",
-                    alignItems: "center",
-                    flexDirection: "column",
-                  }}
-                >
-                  <Typography fontSize={30}>
-                    You are not following anyone yet. Follow someone to see them
-                    here!
-                  </Typography>
-                </Box>
               ) : (
-                <UsersListTable usersList={followingList} />
-              )}
-            </Box>
-          )}
-        </>
-      )}
+                !followingList || followingList.length === 0 ? (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      height: "50vh",
+                      alignItems: "center",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Typography fontSize={30}>
+                      You are not following anyone yet. Follow someone to see
+                      them here!
+                    </Typography>
+                  </Box>
+                ) : (
+                  <UsersListTable usersList={followingList} />
+                )
+              )
+            }
+          </Box>
+        )
+      } 
+       
 
+
+      {/* <Snackbar open={open} setOpen={setOpen} message="Post published successfully!" severity={"success"} /> */}
       <Stack spacing={2} sx={{ width: "100%" }}>
         <Snackbar
           open={open}
