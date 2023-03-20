@@ -175,6 +175,12 @@ export const ChatApp = () => {
 
   const [callState, setCallState] = useState(null);
 
+  const [paginationState, setPaginationState] = useState({
+    page: 1,
+    pageSize: 20,
+    hasNext: true,
+  });
+
   return (
     <AppContext.Provider
       value={{
@@ -213,6 +219,8 @@ export const ChatApp = () => {
         setUiState,
         snackbarState,
         setSnackbarState,
+        paginationState,
+        setPaginationState,
       }}
     >
       {userState && (
@@ -236,7 +244,7 @@ export const ChatApp = () => {
         autoHideDuration={2000}
         onClose={() => {
           setSnackbarState({ ...snackbarState, open: false });
-        }} 
+        }}
         key={"bottom" + "center"}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >

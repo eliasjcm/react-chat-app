@@ -58,7 +58,12 @@ export default function UsersLikesList({ usersList, inline }) {
                   pl: 0,
                   pt: 2,
                   pb: 2,
+                  ":hover": {
+                    // light grey
+                    backgroundColor: "#f5f5f5",
+                  },
                 }}
+
               >
                 <ListItemAvatar
                   onClick={() => handleOpenUserProfile(user)}

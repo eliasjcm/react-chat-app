@@ -27,6 +27,7 @@ import { HOSTNAME } from "../../utils";
 import { SnackbarMsg } from "./Snackbar";
 import axios from "axios";
 import { PostsList } from "../posts/PostsList";
+import { MainScreenPostsLists } from "../posts/MainScreenPostsLists";
 
 export const MainScreen = () => {
   const [ui, setUi] = useState("loading");
@@ -38,6 +39,8 @@ export const MainScreen = () => {
     setPostsListState,
     uiState,
     setUiState,
+    paginationState,
+    setPaginationState,
   } = useContext(AppContext);
   const [postText, setPostText] = useState("");
 
@@ -99,15 +102,27 @@ export const MainScreen = () => {
 
   useEffect(() => {
     (async () => {
-      const request = await fetch(`${HOSTNAME}/posts/${userState.id}}`, {
-        headers: {
-          authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      let newPaginationState = {
+        ...paginationState,
+        page: 1,
+        pageSize: 7,
+        hasNextPage: true,
+      };
+      const request = await fetch(
+        `${HOSTNAME}/posts?page=${newPaginationState.page}&page_size=${newPaginationState.pageSize}`,
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       // console.log(request);
       const response = await request.json();
+      if (response.length < newPaginationState.pageSize) {
+        newPaginationState = { ...newPaginationState, hasNextPage: false };
+      }
+      setPaginationState(newPaginationState);
       setPostsListState(response);
-
       setUi("loaded");
       setUiState({ ...uiState, userInputPost: false });
     })();
@@ -179,6 +194,30 @@ export const MainScreen = () => {
     })();
   };
 
+  const handleLoadMorePosts = () => {
+    (async () => {
+      let newPaginationState = {
+        ...paginationState,
+        page: paginationState.page + 1,
+      };
+      const request = await fetch(
+        `${HOSTNAME}/posts?page=${newPaginationState.page}&page_size=${newPaginationState.pageSize}`,
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      // console.log(request);
+      const response = await request.json();
+      if (response.length < newPaginationState.pageSize) {
+        newPaginationState = { ...newPaginationState, hasNextPage: false };
+      }
+      setPaginationState(newPaginationState);
+      setPostsListState([...postsListState, ...response]);
+    })();
+  };
+
   const navigate = useNavigate();
 
   return (
@@ -224,7 +263,7 @@ export const MainScreen = () => {
               return e.target.value;
             })
           }
-          {...(postText.length == 0 &&
+          {...(postText.length === 0 &&
             uiState.userInputPost && {
               error: true,
               helperText: "Post must not be empty.",
@@ -248,7 +287,7 @@ export const MainScreen = () => {
           <LinearProgress />
         </Box>
       ) : postsListState.length > 0 ? (
-        postsListState.map((post) => <PostsList key={post.id} />)
+        <MainScreenPostsLists loadMorePosts={handleLoadMorePosts} />
       ) : (
         <Box>
           <Alert severity="warning" sx={{ width: "80%", margin: "0 auto" }}>

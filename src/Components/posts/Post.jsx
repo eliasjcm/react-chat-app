@@ -166,7 +166,7 @@ export const Post = ({
           "& .MuiDialog-container": {
             "& .MuiPaper-root": {
               width: "100%",
-              maxWidth: "80vw", // Set your width here
+              maxWidth: "60vw", // Set your width here
             },
           },
         }}
