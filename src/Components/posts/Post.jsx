@@ -24,6 +24,7 @@ import UsersListTable from "../friends/UsersListTable";
 import UsersLikesList from "./UsersLikesList";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { AppContext } from "../../context/AppContext";
+import axios from "axios";
 
 export const Post = ({
   publisher,
@@ -34,8 +35,10 @@ export const Post = ({
   id,
   handleLike,
   handleUnlike,
+  setOpenConfirmDeleteDialog,
 }) => {
-  const { userState } = React.useContext(AppContext);
+  const { userState, postsListState, setPostsListState } =
+    React.useContext(AppContext);
 
   const [showLikesList, setShowLikesList] = useState(false);
 
@@ -105,6 +108,7 @@ export const Post = ({
               color="error"
               // variant="outlined"
               // size="small"
+              onClick={setOpenConfirmDeleteDialog}
             >
               <DeleteForeverIcon />
             </Button>

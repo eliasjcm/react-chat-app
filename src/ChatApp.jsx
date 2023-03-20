@@ -17,6 +17,7 @@ import { FriendsScreen } from "./Components/friends/FriendsScreen";
 import { AppRouter } from "./routers/AppRouter";
 import { PrivateRoute } from "./routers/PrivateRoute";
 import jwt_decode from "jwt-decode";
+import { Alert, Snackbar } from "@mui/material";
 
 const currentChat = {
   name: null,
@@ -62,6 +63,11 @@ export const ChatApp = () => {
   const { decodedToken, isExpired, reEvaluateToken } = useJwt(
     localStorage.getItem("token") || ""
   );
+
+  const [snackbarState, setSnackbarState] = useState({
+    open: false,
+    msg: "",
+  });
 
   const [searchState, setSearchState] = useState({ value: "" });
   const [userState, setUserState] = useState(null);
@@ -159,15 +165,13 @@ export const ChatApp = () => {
     }
   }, [currentToken]);
 
-   useEffect(() => {
-      
+  useEffect(() => {
     return () => {
       if (socket) {
         socket.disconnect();
       }
-    }
-  }, [])
-  
+    };
+  }, []);
 
   const [callState, setCallState] = useState(null);
 
@@ -207,6 +211,8 @@ export const ChatApp = () => {
         setOtherUserStream,
         uiState,
         setUiState,
+        snackbarState,
+        setSnackbarState,
       }}
     >
       {userState && (
@@ -225,6 +231,25 @@ export const ChatApp = () => {
           </Routes>
         </BrowserRouter>
       )}
+      <Snackbar
+        open={snackbarState.open}
+        autoHideDuration={2000}
+        onClose={() => {
+          setSnackbarState({ ...snackbarState, open: false });
+        }} 
+        key={"bottom" + "center"}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => {
+            setSnackbarState({ ...snackbarState, open: false });
+          }}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {snackbarState.msg}
+        </Alert>
+      </Snackbar>
     </AppContext.Provider>
   );
 };

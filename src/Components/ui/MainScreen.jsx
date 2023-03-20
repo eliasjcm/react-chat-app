@@ -26,6 +26,7 @@ import { Post } from "../posts/Post";
 import { HOSTNAME } from "../../utils";
 import { SnackbarMsg } from "./Snackbar";
 import axios from "axios";
+import { PostsList } from "../posts/PostsList";
 
 export const MainScreen = () => {
   const [ui, setUi] = useState("loading");
@@ -66,6 +67,15 @@ export const MainScreen = () => {
       if (post.status === 200) {
         setOpen(true);
         setPostText("");
+
+        const request = await fetch(`${HOSTNAME}/posts/${userState.id}}`, {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        // console.log(request);
+        const response = await request.json();
+        setPostsListState(response);
       } else {
         alert(response.error);
       }
@@ -179,7 +189,6 @@ export const MainScreen = () => {
         padding: "0 2vw",
       }}
     >
-
       <div>Welcome @{userState.username}</div>
       <Box
         sx={{
@@ -239,20 +248,7 @@ export const MainScreen = () => {
           <LinearProgress />
         </Box>
       ) : postsListState.length > 0 ? (
-        postsListState.map((post) => (
-          <Box marginTop={3} key={post.id}>
-            <Post
-              publisher={post.publisher}
-              createdAt={post.createdAt}
-              content={post.content}
-              likesCount={post.likesCount}
-              liked={post?.liked}
-              handleLike={handleLike}
-              handleUnlike={handleUnlike}
-              id={post.id}
-            />
-          </Box>
-        ))
+        postsListState.map((post) => <PostsList key={post.id} />)
       ) : (
         <Box>
           <Alert severity="warning" sx={{ width: "80%", margin: "0 auto" }}>
