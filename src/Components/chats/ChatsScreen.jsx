@@ -212,7 +212,10 @@ export const ChatsScreen = () => {
         console.log(
           `Unmount ChatScreen where currentChatState.name is ${currentChatState.name} and currentChatState.id is ${currentChatState.id}`
         );
-        if (currentChatState.name !== null || currentChatState.id !== -1) {
+        if (
+          socket &&
+          (currentChatState.name !== null || currentChatState.id !== -1)
+        ) {
           socket.emit("leave-room", currentChatState.id);
           console.log("Leave room emitted");
         }

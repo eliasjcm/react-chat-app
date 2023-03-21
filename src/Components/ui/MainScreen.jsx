@@ -34,8 +34,6 @@ export const MainScreen = () => {
   const {
     userState,
     postsListState,
-    setPostListState,
-    decodedToken,
     setPostsListState,
     uiState,
     setUiState,

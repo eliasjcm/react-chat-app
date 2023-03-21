@@ -20,7 +20,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  Container,
   Menu,
   MenuItem,
   IconButton,
@@ -28,7 +27,6 @@ import {
 import Peer from "simple-peer";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
-import AdbIcon from "@mui/icons-material/Adb";
 
 import { ChatsScreen } from "../Components/chats/ChatsScreen";
 import { FriendsScreen } from "../Components/friends/FriendsScreen";
@@ -44,7 +42,7 @@ import { closeCallStream } from "../helpers/calls";
 
 export const AppRouter = () => {
   const pages = [
-    { text: "Friends", link: "/friends" },
+    { text: "Users", link: "/users" },
     { text: "Chats", link: "/chats" },
   ];
   // const settings = ["Profile", "Account", "Dashboard", "Logout"];
@@ -350,9 +348,9 @@ export const AppRouter = () => {
             </Link>
           )}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            <Link to="/friends">
+            <Link to="/users">
               <Typography variant="h6" component="div">
-                Friends
+                Users
               </Typography>
             </Link>
             <Link to="/chats">
@@ -367,7 +365,7 @@ export const AppRouter = () => {
               display="flex"
               justifyContent={"center"}
               alignItems={"center"}
-              sx={{ marginLeft: "auto"}}
+              sx={{ marginLeft: "auto" }}
             >
               <Link
                 to={`/profile/${userState.username}`}
@@ -429,7 +427,7 @@ export const AppRouter = () => {
       <Routes>
         <Route path="/chats" element={<ChatsScreen />} />
         <Route path="/chats/:id" element={<ChatsScreen />} />
-        <Route path="/friends" element={<FriendsScreen />} />
+        <Route path="/users" element={<FriendsScreen />} />
         {/* <Route path="/" element={<MainScreen />} /> */}
         <Route path="/myProfile" element={<Profile />} />
         <Route path="/profile/:username" element={<Profile />} />

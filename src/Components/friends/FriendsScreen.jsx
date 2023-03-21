@@ -20,6 +20,7 @@ import { HOSTNAME } from "../../utils";
 import { display } from "@mui/system";
 import { Loading } from "../ui/Loading";
 import UsersListTable from "./UsersListTable";
+import SearchIcon from "@mui/icons-material/Search";
 
 export const FriendsScreen = () => {
   const {
@@ -31,10 +32,10 @@ export const FriendsScreen = () => {
     setUiState,
   } = useContext(AppContext);
 
-
   const [screenState, setScreenState] = useState({
     inSearch: false,
     friendsList: [],
+    value: "",
   });
 
   const handleFindFriends = async (e) => {
@@ -54,6 +55,7 @@ export const FriendsScreen = () => {
 
   const handleClearSearch = () => {
     setScreenState({ ...screenState, inSearch: false });
+    setSearchState({ ...searchState, value: "" });
     setUsersListState(screenState.friendsList);
   };
 
@@ -101,7 +103,7 @@ export const FriendsScreen = () => {
 
         <Grid item>
           <Button variant="outlined" onClick={handleFindFriends}>
-            Buscar
+            Find
           </Button>
         </Grid>
         <Grid item>
@@ -110,7 +112,7 @@ export const FriendsScreen = () => {
             color="warning"
             onClick={handleClearSearch}
           >
-            Limpiar
+            Clear
           </Button>
         </Grid>
       </Grid>
@@ -120,37 +122,50 @@ export const FriendsScreen = () => {
             Search Results
           </Typography>
           {usersListState.length > 0 ? (
-            <UserCardsList usersList={usersListState} />
+            // <UserCardsList usersList={usersListState} />
+            <UsersListTable usersList={usersListState} setUsersList={setUsersListState} />
           ) : (
             <Alert severity="warning">No users found!</Alert>
           )}
         </>
       )}
       {!screenState.inSearch && (
-        <>
-          <Typography variant="h4" marginTop={10} marginBottom={4}>
-            Following
+        // <>
+        //   <Typography variant="h4" marginTop={10} marginBottom={4}>
+        //     Following
+        //   </Typography>
+        //   {uiState.state === "loading" ? (
+        //     <Loading />
+        //   ) : usersListState.length > 0 ? (
+        //     <>
+        //       {/* <UserCardsList usersList={usersListState} /> */}
+        //       <Grid
+        //         container
+        //         justifyContent={"center"}
+        //         alignItems={"center"}
+        //         sx={{ marginTop: 5 }}
+        //       >
+        //         <Grid item>
+        //           <UsersListTable usersList={usersListState} />
+        //         </Grid>
+        //       </Grid>
+        //     </>
+        //   ) : (
+        //     <Alert severity="warning">You have no friends!</Alert>
+        //   )}
+        // </>
+        <Grid
+          container
+          justifyContent="center"
+          alignItems="center"
+          flexDirection={"column"}
+          sx={{ height: "50vh" }}
+        >
+          <SearchIcon color="primary" sx={{ fontSize: 100 }} />
+          <Typography color={"primary"} fontSize={26}>
+            Enter a username to find new users!
           </Typography>
-          {uiState.state === "loading" ? (
-            <Loading />
-          ) : usersListState.length > 0 ? (
-            <>
-              {/* <UserCardsList usersList={usersListState} /> */}
-              <Grid
-                container
-                justifyContent={"center"}
-                alignItems={"center"}
-                sx={{ marginTop: 5 }}
-              >
-                <Grid item>
-                  <UsersListTable usersList={usersListState} />
-                </Grid>
-              </Grid>
-            </>
-          ) : (
-            <Alert severity="warning">You have no friends!</Alert>
-          )}
-        </>
+        </Grid>
       )}
     </div>
   );

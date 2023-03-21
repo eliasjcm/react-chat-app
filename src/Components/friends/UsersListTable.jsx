@@ -10,8 +10,13 @@ import { deepOrange } from "@mui/material/colors";
 import { Box } from "@mui/system";
 import { Button, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { AppContext } from "../../context/AppContext";
+import axios from "axios";
+import { HOSTNAME } from "../../utils";
 
-export default function UsersListTable({ usersList, inline }) {
+export default function UsersListTable({ usersList, inline, setUsersList }) {
+  const { userState } = React.useContext(AppContext);
+
   const showBorder = inline ? false : true;
   console.log("INLINE TABLE", showBorder);
   const primaryColor = "#1976D9";
@@ -26,6 +31,72 @@ export default function UsersListTable({ usersList, inline }) {
     navigate(`/profile/${user.username}`);
   };
 
+  const handleFollow = (user) => {
+    const otherUserId = user.id;
+
+    (async () => {
+      // use axios to make a post request to the follow-system/follow endpoint
+      // pass otherUserId in the body
+      const follow = await axios.post(
+        `${HOSTNAME}/follow-system/follow`,
+        {
+          otherUserId,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const response = follow.data;
+
+      if (follow.status === 200) {
+        setUsersList((prev) => {
+          return prev.map((user) => {
+            if (user.id === otherUserId) {
+              return { ...user, is_being_followed_by_me: true };
+            }
+            return user;
+          });
+        });
+      }
+    })();
+  };
+
+  const handleUnfollow = (user) => {
+    const otherUserId = user.id;
+
+    (async () => {
+      // use axios to make a post request to the follow-system/unfollow endpoint
+      // pass otherUserId in the body
+      const unfollow = await axios.post(
+        `${HOSTNAME}/follow-system/unfollow`,
+        {
+          otherUserId,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const response = unfollow.data;
+
+      if (unfollow.status === 200) {
+        setUsersList((prev) => {
+          return prev.map((user) => {
+            if (user.id === otherUserId) {
+              return { ...user, is_being_followed_by_me: false };
+            }
+            return user;
+          });
+        });
+      }
+    })();
+  };
+
   return (
     <Box
       {...(showBorder && {
@@ -33,13 +104,19 @@ export default function UsersListTable({ usersList, inline }) {
         borderColor: primaryColor,
         borderRadius: 3,
       })}
+      sx={{
+        width: "70vw",
+        display: "flex",
+        margin: "0 auto",
+      }}
     >
       <List
         sx={{
-          xs: { width: "450px" },
-          xl: { width: "900px" },
+          // xs: { width: "450px" },
+          // xl: { width: "900px" },
           borderColor: "red",
           alignItems: "center",
+          width: "100%",
         }}
       >
         {usersList.map((user, index) => {
@@ -132,7 +209,7 @@ export default function UsersListTable({ usersList, inline }) {
                   alignItems={"center"}
                   sx={{ width: "initial", marginLeft: "auto" }}
                 >
-                  {true ? (
+                  {/* {!!user?.is_being_followed_by_me ? (
                     <Grid item ml={3}>
                       <Button
                         variant="contained"
@@ -151,7 +228,28 @@ export default function UsersListTable({ usersList, inline }) {
                         Follow
                       </Button>
                     </Grid>
-                  )}
+                  )} */}
+                  {userState.id !== user.id &&
+                    (!!user?.is_being_followed_by_me ? (
+                      <Grid item ml={3}>
+                        <Button
+                          variant="contained"
+                          onClick={() => handleUnfollow(user)}
+                          color={"error"}
+                        >
+                          Unfollow
+                        </Button>
+                      </Grid>
+                    ) : (
+                      <Grid item ml={3}>
+                        <Button
+                          variant="contained"
+                          onClick={() => handleFollow(user)}
+                        >
+                          Follow
+                        </Button>
+                      </Grid>
+                    ))}
                 </Grid>
               </ListItem>
               {showBorder && index < usersList.length - 1 && (

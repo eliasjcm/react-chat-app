@@ -30,16 +30,20 @@ import axios from "axios";
 import ErrorIcon from "@mui/icons-material/Error";
 import { PostsList } from "../posts/PostsList";
 import UsersListTable from "../friends/UsersListTable";
+import { MainScreenPostsLists } from "../posts/MainScreenPostsLists";
 
 export const Profile = () => {
   const [ui, setUi] = useState("loading");
   const {
     userState,
+    postsListState,
     setPostsListState,
     uiState,
     setUiState,
     currentChatState,
     setCurrentChatState,
+    paginationState,
+    setPaginationState,
   } = useContext(AppContext);
 
   const [open, setOpen] = React.useState(false);
@@ -61,6 +65,13 @@ export const Profile = () => {
 
   useEffect(() => {
     (async () => {
+      let newPaginationState = {
+        ...paginationState,
+        page: 1,
+        pageSize: 7,
+        hasNextPage: true,
+      };
+
       setFollowersList(null);
       setfollowingList(null);
       setCurrentSection("posts");
@@ -88,19 +99,50 @@ export const Profile = () => {
       } else {
         setProfileState(profileInfoRes);
       }
-      const postsReq = await fetch(`${HOSTNAME}/posts/${profileInfoRes.id}}`, {
-        headers: {
-          authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const postsReq = await fetch(
+        `${HOSTNAME}/posts/${profileInfoRes.id}}?page=${newPaginationState.page}&page_size=${newPaginationState.pageSize}`,
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       // console.log(request);
       const postsRes = await postsReq.json();
-      setPostsListState(postsRes);
+      if (postsRes.length < newPaginationState.pageSize) {
+        newPaginationState.hasNextPage = false;
+      }
 
+      setPaginationState(newPaginationState);
+      setPostsListState(postsRes);
       setUi("loaded");
       setUiState({ ...uiState, userInputPost: false });
     })();
   }, [username]);
+
+  const handleLoadMorePosts = () => {
+    (async () => {
+      let newPaginationState = {
+        ...paginationState,
+        page: paginationState.page + 1,
+      };
+      const request = await fetch(
+        `${HOSTNAME}/posts/${profileState.id}}?page=${newPaginationState.page}&page_size=${newPaginationState.pageSize}`,
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      // console.log(request);
+      const response = await request.json();
+      if (response.length < newPaginationState.pageSize) {
+        newPaginationState = { ...newPaginationState, hasNextPage: false };
+      }
+      setPaginationState(newPaginationState);
+      setPostsListState([...postsListState, ...response]);
+    })();
+  };
 
   useEffect(() => {}, [currentChatState]);
 
@@ -130,6 +172,7 @@ export const Profile = () => {
           isBeingFollowedByMe: true,
           followersCount: profileState.followersCount + 1,
         });
+        setFollowersList([userState, ...followersList]);
       } else {
         alert(response.error);
       }
@@ -162,6 +205,9 @@ export const Profile = () => {
           isBeingFollowedByMe: false,
           followersCount: profileState.followersCount - 1,
         });
+        setFollowersList(
+          followersList.filter((user) => user.id !== userState.id)
+        );
       } else {
         alert(response.error);
       }
@@ -231,7 +277,6 @@ export const Profile = () => {
     // use axios to make a get request to the chats/findChatByUserId?userId=? endpoint
 
     const { id: otherUserId } = profileState;
-
     (async () => {
       try {
         const chat = await axios.get(
@@ -519,7 +564,7 @@ export const Profile = () => {
           </Typography>
 
           {currentSection === "posts" ? (
-            <PostsList />
+            <MainScreenPostsLists loadMorePosts={handleLoadMorePosts} />
           ) : currentSection === "followers" ? (
             <Box>
               {ui === "loadingFollowers" ? (
@@ -554,7 +599,10 @@ export const Profile = () => {
                   </Typography>
                 </Box>
               ) : (
-                <UsersListTable usersList={followersList} />
+                <UsersListTable
+                  usersList={followersList}
+                  setUsersList={setFollowersList}
+                />
               )}
             </Box>
           ) : (
@@ -592,7 +640,10 @@ export const Profile = () => {
                   </Typography>
                 </Box>
               ) : (
-                <UsersListTable usersList={followingList} />
+                <UsersListTable
+                  usersList={followingList}
+                  setUsersList={setfollowingList}
+                />
               )}
             </Box>
           )}

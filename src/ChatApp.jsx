@@ -1,19 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useJwt } from "react-jwt";
-import {
-  BrowserRouter,
-  Link,
-  Navigate,
-  Route,
-  Routes,
-  useNavigate,
-} from "react-router-dom";
-import { ChatsScreen } from "./Components/chats/ChatsScreen";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { LoginScreen } from "./Components/login/LoginScreen";
-import { MainScreen } from "./Components/ui/MainScreen";
-import { AppContext, contextStructure } from "./context/AppContext";
-import { FriendsScreen } from "./Components/friends/FriendsScreen";
-
+import { AppContext } from "./context/AppContext";
 import { AppRouter } from "./routers/AppRouter";
 import { PrivateRoute } from "./routers/PrivateRoute";
 import jwt_decode from "jwt-decode";
