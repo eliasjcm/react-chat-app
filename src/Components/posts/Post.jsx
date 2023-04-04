@@ -25,6 +25,7 @@ import UsersLikesList from "./UsersLikesList";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import { AppContext } from "../../context/AppContext";
 import axios from "axios";
+import { HOSTNAME } from "../../utils";
 
 export const Post = ({
   publisher,
@@ -53,7 +54,7 @@ export const Post = ({
   const openLikesList = async () => {
     // http://localhost:5000/posts/likes/1
 
-    const response = await fetch(`http://localhost:5000/posts/likes/${id}`, {
+    const response = await fetch(`${HOSTNAME}/posts/likes/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

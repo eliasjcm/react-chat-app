@@ -17,8 +17,6 @@ import { ChatsListSection } from "./ChatsListSection";
 
 import { ChatsMessagesSection } from "./ChatsMessagesSection";
 
-const ENDPOINT = "http://192.168.100.47:5000";
-
 const strToDate = (date) => {
   var dateObj = new Date(date);
   var month = dateObj.getUTCMonth() + 1; //months from 1-12

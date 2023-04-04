@@ -118,7 +118,7 @@ export const PostsList = () => {
     console.log("POST #1");
     const id = openConfirmDeleteDialog.postId;
     setOpenConfirmDeleteDialog({ open: false, postId: null });
-    const response = await axios.delete(`http://localhost:5000/posts/${id}`, {
+    const response = await axios.delete(`${HOSTNAME}/posts/${id}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
