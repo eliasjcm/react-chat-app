@@ -74,6 +74,8 @@ export const AppRouter = () => {
     callState,
     setCallState,
     setOtherUserStream,
+    setUserState,
+    setCurrentToken,
   } = useContext(AppContext);
   const [newCallReceived, setNewCallReceived] = useState(false);
 
@@ -195,6 +197,13 @@ export const AppRouter = () => {
     setNewCallReceived(false);
     console.log("-----------------> PEER.SIGNAL");
     // console.log("stream", stream, "otro stream", otherUser.stream);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUserState({ isLoggedIn: false, user: null });
+    setCurrentToken(null);
+    navigate("/login");
   };
 
   return (
@@ -403,10 +412,13 @@ export const AppRouter = () => {
               </Link>
               <LogoutIcon
                 sx={{ display: { xs: "flex", md: "none" }, ml: 1 }}
+                onClick={handleLogout}
               ></LogoutIcon>
               <Button
                 sx={{ display: { xs: "none", md: "flex" } }}
                 color="inherit"
+                onClick={handleLogout}
+
                 //   sx={{ marginLeft: "auto" }}
                 // onClick={() => {
                 //   setUserState({

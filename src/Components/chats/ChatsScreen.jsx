@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Button,
   Grid,
@@ -61,6 +61,9 @@ export const ChatsScreen = () => {
     setUiState,
   } = useContext(AppContext);
 
+  const [showChatsList, setShowChatsList] = useState(true);
+  const [showChatMessages, setShowChatMessages] = useState(false);
+
   // simple-peer
 
   const handleCloseNotAnswered = () => {
@@ -88,6 +91,8 @@ export const ChatsScreen = () => {
   /////////////////////////////
 
   const { id: chatId } = useParams();
+
+  const chatSectionRef = useRef();
 
   useEffect(() => {
     if (!chatId || !socket) return;
@@ -223,14 +228,28 @@ export const ChatsScreen = () => {
         return { ...currentChatState, name: null };
       });
     };
-  }, []);
+  }, [setCurrentChatState, socket]);
+
+  useEffect(() => {
+    console.log("INSIDE USE EFFECT");
+    console.log(chatSectionRef.current);
+    console.log(currentChatState);
+    if (currentChatState.name !== null) {
+      console.log("CHAT CHANGED");
+      console.log(currentChatState);
+      setShowChatMessages(true);
+      setShowChatsList(false);
+      // chatSectionRef.current.sx.display = "block";
+    }
+  }, [currentChatState]);
+
   return (
     <Grid
       container
       alignItems="center"
       direction="column"
       sx={{
-        width: "100%",
+        width: "95%",
         maxWidth: { md: "90vw" },
         margin: "0 auto",
         paddingTop: "2vh",
@@ -238,19 +257,31 @@ export const ChatsScreen = () => {
     >
       <Grid
         container
-        direction="row"
         sx={{
           border: "1px red solid",
           borderColor: "primary.dark",
-          height: "800px",
-          maxHeight: "800px",
+          height: "85vh",
+          // maxHeight: "800px",
+          flexDirection: {
+            xs: "column",
+            md: "row",
+          },
+          flexWrap: "initial",
+          position: "relative",
         }}
       >
         <Grid
           item
           xs={12}
           md={3}
-          sx={{ borderRight: "1px solid", borderRightColor: "primary.dark" }}
+          sx={{
+            borderRight: "1px solid",
+            borderRightColor: "primary.dark",
+            display: {
+              xs: showChatsList ? "block" : "none",
+              md: "block",
+            },
+          }}
         >
           <ChatsListSection />
         </Grid>
@@ -261,9 +292,17 @@ export const ChatsScreen = () => {
           //   xs: "none",
           //   md: "block",
           // }}
+          xs={12}
           md={9}
           container
           direction="column"
+          sx={{
+            display: {
+              xs: showChatMessages ? "block" : "none",
+              md: "block",
+            },
+          }}
+          ref={chatSectionRef}
           // sx={{backgroundColor: "primary.light"}}
         >
           <ChatsMessagesSection
@@ -273,8 +312,31 @@ export const ChatsScreen = () => {
             setCallStatus={setCallStatus}
             setTimeoutID={setTimeoutID}
             timeoutID={timeoutID}
+            chatSectionRef={chatSectionRef}
+            setShowChatMessages={setShowChatMessages}
+setShowChatsList={setShowChatsList}
           />
         </Grid>
+        {/* {currentChatState.name !== null && (
+          <Button
+            sx={{
+              display: {
+                xs: "block",
+                md: "none",
+              },
+              position: "absolute",
+              right: 0,
+              bottom: "50%",
+              
+            }}
+            onClick={() => {
+              setShowChatMessages(!showChatMessages);
+              setShowChatsList(!showChatsList);
+            }}
+          >
+            Open/Close
+          </Button>
+        )} */}
       </Grid>
       {/* BACKDROP FOR MESSAGE: */}
       <Backdrop

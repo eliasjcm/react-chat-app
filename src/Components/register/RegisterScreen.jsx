@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Alert, Box, Button, Grid, TextField, Typography } from "@mui/material";
 import { useJwt } from "react-jwt";
 import "../../styles.scss";
@@ -6,12 +6,16 @@ import { AppContext } from "../../context/AppContext";
 import { useNavigate } from "react-router-dom";
 import { HOSTNAME } from "../../utils";
 
-export const LoginScreen = () => {
+export const RegisterScreen = () => {
   console.log("LoginScreen");
   const navigate = useNavigate();
+  const [registerState, setRegisterState] = useState({
+    username: "",
+    name: "",
+    password: "",
+    confirmPassword: "",
+  });
   const {
-    loginState,
-    setLoginState,
     alertMessage,
     setAlertMessage,
     setUserState,
@@ -19,39 +23,31 @@ export const LoginScreen = () => {
     setCurrentToken,
   } = useContext(AppContext);
 
-  const handleLogin = async () => {
+  const handleRegister = async () => {
     setAlertMessage({ severity: "" });
     try {
-      const response = await fetch(`${HOSTNAME}/login`, {
+      const response = await fetch(`${HOSTNAME}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: loginState.username,
-          password: loginState.password,
+          username: registerState.username,
+          name: registerState.name,
+          password: registerState.password,
         }),
       });
       console.log(response);
       const responseBody = await response.json();
       if (response.ok) {
         setAlertMessage({
-          msg: "Login Successfully",
+          msg: "User created successfully",
           severity: "success",
         });
-        // const { decodedToken, isExpired } = useJwt(responseBody.token);
-        // responseBody.token
-        // {
-        //   isConnected: true,
-        //   id: decodedToken.id,
-        //   username: decodedToken.username,
-        // }
-        setUserState({ isLogged: true });
-        // reEvaluateToken(responseBody.token);
-        setCurrentToken(responseBody.token);
-        localStorage.setItem("token", responseBody.token);
-        navigate("/", { replace: true });
-        setAlertMessage({ severity: "" });
+        setTimeout(() => {
+          setAlertMessage({ severity: "" });
+          navigate("/login", { replace: true });
+        }, 2000);
       } else {
         setAlertMessage({
           msg: responseBody.error,
@@ -68,7 +64,7 @@ export const LoginScreen = () => {
 
   const handleInputChange = (e) => {
     // console.log(e.target.name);
-    setLoginState({ ...loginState, [e.target.name]: e.target.value });
+    setRegisterState({ ...registerState, [e.target.name]: e.target.value });
     // console.log(e);
   };
 
@@ -94,7 +90,7 @@ export const LoginScreen = () => {
           // borderColor: "#00af9c",
           zIndex: 1,
           width: {
-            md: "40vw",
+            lg: "40vw",
             xs: "80vw",
           },
           margin: "0 auto",
@@ -103,12 +99,12 @@ export const LoginScreen = () => {
       >
         <Grid item xs={12} container justifyContent={"center"}>
           <Typography variant="h3" mb={2} color={"#224957"}>
-            Log In
+            Sign Up
           </Typography>
         </Grid>
         <Grid item mb={5} mt={1.5} xs={12} container justifyContent={"center"}>
           <Typography variant="subtitle1" color={"#224957"}>
-            Sign in and start sharing with your friends
+            Create your account to start meeting new people
           </Typography>
         </Grid>
         <Grid item xs={12} container justifyContent={"center"}>
@@ -116,18 +112,39 @@ export const LoginScreen = () => {
             label="Username"
             variant="standard"
             name="username"
-            value={loginState.username}
+            value={registerState.username}
             onChange={handleInputChange}
             fullWidth
           />
         </Grid>
         <Grid item xs={12} mt={2} container justifyContent={"center"}>
           <TextField
+            label="Name"
+            variant="standard"
+            name="name"
+            value={registerState.name}
+            onChange={handleInputChange}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={12} mt={2} container justifyContent={"center"}>
+          <TextField
+            type={"password"}
             label="Password"
             name="password"
             variant="standard"
-            value={loginState.password}
-            type="password"
+            value={registerState.password}
+            onChange={handleInputChange}
+            fullWidth
+          />
+        </Grid>
+        <Grid item xs={12} mt={2} container justifyContent={"center"}>
+          <TextField
+            type={"password"}
+            label="Confirm Password"
+            name="confirmPassword"
+            variant="standard"
+            value={registerState.confirmPassword}
             onChange={handleInputChange}
             fullWidth
           />
@@ -136,10 +153,10 @@ export const LoginScreen = () => {
           <Button
             variant="contained"
             color="primary"
-            onClick={handleLogin}
+            onClick={handleRegister}
             fullWidth
           >
-            Log In
+            Register
           </Button>
         </Grid>
         <Grid item xs={12} mt={3} container justifyContent={"center"}>
@@ -147,11 +164,11 @@ export const LoginScreen = () => {
             variant="outlined"
             color="primary"
             onClick={() => {
-              navigate("/register", { replace: true });
+              navigate("/login", { replace: true });
             }}
             fullWidth
           >
-            Don't have an account? Sign Up
+            Already have an account? Log In
           </Button>
         </Grid>
         {alertMessage.severity !== "" && (

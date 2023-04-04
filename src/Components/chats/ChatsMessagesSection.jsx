@@ -25,12 +25,16 @@ import { ChatMessages } from "./ChatMessages";
 import { deepOrange } from "@mui/material/colors";
 import { CALL_DEVELOPMENT } from "../../utils";
 import { closeCallStream } from "../../helpers/calls";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export const ChatsMessagesSection = ({
   setIsCallingActive,
   callStatus,
   setCallStatus,
   setTimeoutID,
+  chatSectionRef,
+  setShowChatMessages,
+  setShowChatsList,
 }) => {
   let {
     currentChatState,
@@ -56,7 +60,7 @@ export const ChatsMessagesSection = ({
       content: currentChatState.newMessage,
       senderId: userState.id,
       chatId: currentChatState.id,
-      otherUsername: currentChatState?.otherUsername
+      otherUsername: currentChatState?.otherUsername,
     });
     setCurrentChatState({
       ...currentChatState,
@@ -178,51 +182,72 @@ export const ChatsMessagesSection = ({
 
   return (
     <Box sx={{ display: "grid", height: "800px", maxHeight: "800px" }}>
-        {currentChatState.name !== null && (
-      <Box
-        xs={3}
-        sx={{
-          // width: 300,
-          height: 80,
-          backgroundColor: "primary.dark",
-          color: "white",
-          // '&:hover': {
-          //   backgroundColor: 'primary.main',
-          //   opacity: [0.9, 0.8, 0.7],
-        }}
-      >
-        {/* Icons and information of current chat */}
-        {currentChatState.name !== null && (
-          <List sx={{ display: "flex", margin: "auto 0" }}>
-            <ListItem>
-              <ListItemAvatar>
-                <Avatar sx={{ bgcolor: deepOrange[500] }}>
-                  {currentChatState.name[0]}
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText>{currentChatState.name}</ListItemText>
-              <IconButton
-                // edge="end"
-                aria-label="delete"
-                sx={{ color: "white" }}
-                mr={5}
-                onClick={handleStartCall}
-              >
-                <CallIcon />
-              </IconButton>
-              <IconButton
-                edge="end"
-                aria-label="delete"
-                sx={{ color: "white" }}
-              >
-                <ImageSearchIcon />
-              </IconButton>
-            </ListItem>
-          </List>
-        )}
-        {/* Usuario actual: {`${userState.username} - ${userState.id}`}. Nombre
+      {currentChatState.name !== null && (
+        <Box
+          xs={3}
+          sx={{
+            // width: 300,
+            height: 80,
+            backgroundColor: "primary.dark",
+            color: "white",
+            // '&:hover': {
+            //   backgroundColor: 'primary.main',
+            //   opacity: [0.9, 0.8, 0.7],
+          }}
+        >
+          {/* Icons and information of current chat */}
+          {currentChatState.name !== null && (
+            <List sx={{ display: "flex", margin: "auto 0" }}>
+              <ListItem sx={{ paddingLeft: "0" }}>
+                <IconButton
+                  sx={{
+                    color: "white",
+                    ml: 1,
+                    mr: 1,
+                    display: { md: "none", xs: "block" },
+                  }}
+                  onClick={() => {
+                    setShowChatMessages(false);
+                    setShowChatsList(true);
+                    setCurrentChatState({
+                      name: null,
+                      id: null,
+                      otherUsername: null,
+                    });
+                    navigate("/chats");
+                  }}
+                >
+                  <ArrowBackIcon sx={{ margin: "0" }} />
+                </IconButton>
+                <ListItemAvatar>
+                  <Avatar sx={{ bgcolor: deepOrange[500] }}>
+                    {currentChatState.name[0]}
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText>{currentChatState.name}</ListItemText>
+                <IconButton
+                  // edge="end"
+                  aria-label="delete"
+                  sx={{ color: "white" }}
+                  mr={5}
+                  onClick={handleStartCall}
+                >
+                  <CallIcon />
+                </IconButton>
+                <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  sx={{ color: "white" }}
+                >
+                  <ImageSearchIcon />
+                </IconButton>
+              </ListItem>
+            </List>
+          )}
+          {/* Usuario actual: {`${userState.username} - ${userState.id}`}. Nombre
             del chat {currentChatState.name} */}
-      </Box>)}
+        </Box>
+      )}
 
       <Box xs={9} sx={{}}>
         {uiState.state === "loading" ? (
@@ -261,7 +286,7 @@ export const ChatsMessagesSection = ({
               //   backgroundColor: "yellow",
               display: "grid",
               gridTemplateRows: "90% 7.5%",
-              rowGap: "10px"
+              rowGap: "10px",
             }}
           >
             <Box

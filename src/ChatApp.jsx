@@ -7,6 +7,7 @@ import { AppRouter } from "./routers/AppRouter";
 import { PrivateRoute } from "./routers/PrivateRoute";
 import jwt_decode from "jwt-decode";
 import { Alert, Snackbar } from "@mui/material";
+import { RegisterScreen } from "./Components/register/RegisterScreen";
 
 const currentChat = {
   name: null,
@@ -216,6 +217,7 @@ export const ChatApp = () => {
         <BrowserRouter>
           <Routes>
             <Route exact path="/login" element={<LoginScreen />} />
+            <Route exact path="/register" element={<RegisterScreen />} />
             <Route
               path="*"
               element={

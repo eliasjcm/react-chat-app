@@ -24,7 +24,6 @@ export const ChatsListSection = () => {
   const navigate = useNavigate();
   const handlePickChat = (chatId) => {
     if (chatId !== currentChatState.id) {
-
       navigate(`/chats/${chatId}`);
     }
     // }
@@ -32,15 +31,21 @@ export const ChatsListSection = () => {
 
   return (
     <Box>
-      <Box sx={{ height: 80, bgcolor: "primary.dark", display: "flex" }} pl={2}>
+      <Box
+        sx={{
+          height: 80,
+          bgcolor: "primary.dark",
+          display: "flex",
+          alignItems: "center",
+        
+        }}
+        pl={2}
+      >
         <Typography sx={{ color: "white" }} fontSize={20}>
-          Chats
+          All Chats
         </Typography>
       </Box>
-      <List
-        className="chat-list"
-        sx={{ padding: 0, overflowY: "auto" }}
-      >
+      <List className="chat-list" sx={{ padding: 0, overflowY: "auto" }}>
         {chatsListState.map((chat) => (
           <Box key={chat.id}>
             <ListItem

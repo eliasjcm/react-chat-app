@@ -226,7 +226,7 @@ export const MainScreen = () => {
         padding: "0 2vw",
       }}
     >
-      <div>Welcome @{userState.username}</div>
+      {/* <div>Welcome @{userState.username}</div> */}
       <Box
         sx={{
           backgroundColor: "rgba(200, 255, 255, 0.5)",
