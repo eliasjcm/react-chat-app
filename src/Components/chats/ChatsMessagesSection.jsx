@@ -280,8 +280,8 @@ export const ChatsMessagesSection = ({
           </Grid>
         ) : (
           <Box
-            height={720}
-            maxHeight={720}
+            height={750}
+            maxHeight={750}
             sx={{
               //   backgroundColor: "yellow",
               display: "grid",

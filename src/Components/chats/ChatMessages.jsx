@@ -8,6 +8,7 @@ export const ChatMessages = () => {
 
   return (
     <List
+    className="chat-messages"
       ref={refChatBox}
       sx={{
         display: "flex",
