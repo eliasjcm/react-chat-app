@@ -4,7 +4,7 @@ Fully functional social network with real-time chat and video calls.
 
 Live: https://react-chat-app-tst.herokuapp.com/
 
-*(Back End repository is not public yet)*
+*(Backend repository is not public yet)*
 
 
 # Technologies Used
